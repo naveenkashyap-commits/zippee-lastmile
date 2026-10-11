@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zippee Last Mile Team</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, Arial, sans-serif; }
+    body { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #ffffff; padding: 16px; min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .card { background: rgba(30, 41, 59, 0.9); padding: 20px; border-radius: 16px; border: 1px solid #334155; margin-bottom: 16px; backdrop-filter: blur(10px); }
+    h1 { font-size: 26px; background: linear-gradient(90deg, #38bdf8, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+    h3 { color: #38bdf8; margin-bottom: 14px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+    .badge { display: inline-block; background: linear-gradient(90deg, #0284c7, #7c3aed); color: #fff; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 13px; margin-bottom: 12px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .kpi-card { background: rgba(30, 41, 59, 0.95); padding: 16px 12px; border-radius: 14px; border: 1px solid #334155; text-align: center; transition: transform 0.2s; }
+    .kpi-card:hover { transform: translateY(-3px); border-color: #38bdf8; }
+    .kpi-title { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-num { font-size: 28px; font-weight: 700; color: #fff; margin: 6px 0; }
+    .kpi-sub { font-size: 11px; font-weight: 600; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab { background: #334155; color: #94a3b8; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 13px; transition: 0.2s; }
+    .tab.active { background: linear-gradient(90deg, #0284c7, #7c3aed); color: #fff; box-shadow: 0 4px 15px rgba(2,132,199,0.4); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .filters { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+    select, input[type="text"] { padding: 9px 14px; border: 1px solid #334155; border-radius: 8px; background: #0f172a; color: #fff; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #334155; }
+    th { background: #0f172a; color: #38bdf8; font-weight: 600; position: sticky; top: 0; }
+    tr:hover { background: rgba(51, 65, 85, 0.6); }
+    .status-tag { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .green { background: #166534; color: #4ade80; }
+    .yellow { background: #854d0e; color: #facc15; }
+    .red { background: #991b1b; color: #f87171; }
+    .btn { border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+    .btn:hover { transform: scale(1.03); }
+    .btn-blue { background: linear-gradient(90deg, #0284c7, #0ea5e9); color: white; }
+    .btn-green { background: linear-gradient(90deg, #16a34a, #22c55e); color: white; }
+    .btn-orange { background: linear-gradient(90deg, #d97706, #f59e0b); color: white; }
+    .btn-purple { background: linear-gradient(90deg, #7c3aed, #a78bfa); color: white; }
+    .btn-pink { background: linear-gradient(90deg, #db2777, #f472b6); color: white; }
+    .btn-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+    .search-box { flex: 1; min-width: 180px; }
+    .table-wrap { max-height: 520px; overflow-y: auto; border-radius: 10px; }
+    #csvFileInput, #riderFileInput { display: none; }
+    .note { font-size: 12px; color: #94a3b8; margin-top: 10px; text-align: center; }
+    .new-badge { background: linear-gradient(90deg, #db2777, #f472b6); color: white; padding: 2px 8px; border-radius: 8px; font-size: 10px; margin-left: 6px; }
+    @media print { body { background:#fff; color:#000; } .btn-group, .tabs, .filters, input, select { display:none !important; } .tab-content { display:block !important; } .card, .kpi-card { background:#fff; color:#000; border:1px solid #999; } th { background:#eee; color:#000; position:static; } .table-wrap { max-height:none; overflow:visible; } h1, h3, .kpi-title, .kpi-num, .kpi-sub { color:#000 !important; -webkit-text-fill-color:#000; background:none; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="card" style="text-align:center;">
+    <div style="font-size:36px;">🔱</div>
+    <h1>Zippee Last Mile Team</h1>
+    <div class="badge">Naveen Kashyap • Delhi-NCR</div>
+    <div style="font-size:13px; color:#94a3b8; margin-top:4px;">Rider Master + Hub Performance | Live Dashboard</div>
+
+    <div class="btn-group">
+      <button class="btn btn-blue" onclick="document.getElementById('csvFileInput').click()">📂 Upload Daily CSV</button>
+      <button class="btn btn-green" onclick="loadFromSheet(true)">🔄 Sheet Refresh</button>
+      <button class="btn btn-purple" onclick="document.getElementById('riderFileInput').click()">📋 Upload Rider Sheet</button>
+      <button class="btn btn-orange" onclick="downloadExcel()">📥 Excel Report</button>
+      <button class="btn btn-pink" onclick="downloadPDF()">📄 PDF Report</button>
+    </div>
+    <input type="file" id="csvFileInput" accept=".csv" onchange="handleCSV(event)">
+    <input type="file" id="riderFileInput" accept=".csv" onchange="handleRiderUpload(event)">
+    <div class="note" id="uploadStatus">Page khulte hi Google Sheet se hub data aata hai • 🔄 Sheet Refresh se dobara le sakte hain</div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Hubs</div>
+      <div class="kpi-num" id="kHubs">12</div>
+      <div class="kpi-sub" style="color:#38bdf8;">Delhi-NCR</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Total Riders</div>
+      <div class="kpi-num" id="kRiders">0</div>
+      <div class="kpi-sub" style="color:#38bdf8;">In Master</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Planned</div>
+      <div class="kpi-num" id="kPlanned">0</div>
+      <div class="kpi-sub" style="color:#38bdf8;">Today</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Actual Logged</div>
+      <div class="kpi-num" id="kActual">0</div>
+      <div class="kpi-sub" style="color:#4ade80;" id="kLoginPct">0%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">New Join Today</div>
+      <div class="kpi-num" id="kNewJoin" style="color:#f472b6;">0</div>
+      <div class="kpi-sub" style="color:#f472b6;">New Riders</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Top Vendor</div>
+      <div class="kpi-num" style="font-size:18px;" id="kTopVendor">-</div>
+      <div class="kpi-sub" style="color:#38bdf8;">Most Riders</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('performance', this)">📊 Hub Performance</button>
+    <button class="tab" onclick="showTab('riders', this)">👥 Rider Master</button>
+    <button class="tab" onclick="showTab('vendor', this)">🏷 Vendor Summary</button>
+    <button class="tab" onclick="showTab('newjoin', this)">🆕 New Join Today</button>
+  </div>
+
+  <div id="performance" class="tab-content active">
+    <div class="card">
+      <h3>🏬 DELHI-NCR HUB PERFORMANCE</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Hub / Store</th>
+              <th>Planned</th>
+              <th>Actual</th>
+              <th>Login %</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="perfBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="riders" class="tab-content">
+    <div class="card">
+      <h3>👥 RIDER MASTER LIST</h3>
+      <div class="filters">
+        <select id="filterHub" onchange="renderRiders()"><option value="">All Hubs</option></select>
+        <select id="filterVendor" onchange="renderRiders()"><option value="">All Vendors</option></select>
+        <input type="text" class="search-box" id="searchRider" placeholder="Search Rider Name / ID..." oninput="renderRiders()">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Hub</th><th>Rider Name</th><th>Rider ID</th><th>Vendor</th><th>Phone</th></tr>
+          </thead>
+          <tbody id="riderBody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px; font-size:12px; color:#94a3b8;">Showing <span id="showCount">0</span> riders</div>
+    </div>
+  </div>
+
+  <div id="vendor" class="tab-content">
+    <div class="card">
+      <h3>🏷 VENDOR-WISE SUMMARY</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Vendor</th><th>Total Riders</th><th>Hubs Present</th></tr></thead>
+          <tbody id="vendorBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="newjoin" class="tab-content">
+    <div class="card">
+      <h3>🆕 NEW RIDERS JOINED TODAY</h3>
+      <p style="color:#94a3b8; margin-bottom:14px; font-size:13px;">Yahan aaj ke naye join riders dikhenge (Rider Sheet upload karne par update hoga)</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Hub</th><th>Rider Name</th><th>Vendor</th><th>Phone</th></tr></thead>
+          <tbody id="newJoinBody"><tr><td colspan="5" style="text-align:center; color:#94a3b8;">No new join data yet. Upload latest Rider Sheet.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_STORES = [
+  { name: "Okhla SDD", planned: 30, actual: 29 },
+  { name: "Dwarka SDD", planned: 10, actual: 11 },
+  { name: "Wazirpur SDD", planned: 17, actual: 17 },
+  { name: "Ghaziabad SDD", planned: 13, actual: 14 },
+  { name: "Gurugram SDD", planned: 5, actual: 8 },
+  { name: "Gurugram Clinikally", planned: 6, actual: 6 },
+  { name: "Noida SDD", planned: 14, actual: 17 },
+  { name: "Ozi Dwarka Sector 3", planned: 10, actual: 11 },
+  { name: "Ozi Noida Sec 1", planned: 10, actual: 12 },
+  { name: "Ozi Gurugram Sec 84", planned: 15, actual: 14 },
+  { name: "Ozi Gurugram Sec 52", planned: 6, actual: 4 },
+  { name: "Ozi Noida 62", planned: 30, actual: 28 }
+];
+const LS_KEY = 'zippee_lastmile_v1';
+const SHEET_ID = '1uKdFL4NIFevhxzjsUAaPNc3daim-HlPw';
+const SHEET_GID = '1772851454'; // DASHBOARD tab
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&gid=' + SHEET_GID;
+let stores = DEFAULT_STORES.map(s => ({...s}));
+let riders = [];
+let newJoinRiders = [];
+
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function csvCell(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
+function setStatus(msg) { document.getElementById('uploadStatus').innerText = msg; }
+
+function saveState() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ stores, riders, newJoinRiders })); } catch (e) {}
+}
+function loadState() {
+  try {
+    const d = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (!d) return;
+    if (Array.isArray(d.stores) && d.stores.length) stores = d.stores;
+    if (Array.isArray(d.riders)) riders = d.riders;
+    if (Array.isArray(d.newJoinRiders)) newJoinRiders = d.newJoinRiders;
+  } catch (e) {}
+}
+
+// Proper CSV parser: quotes, commas inside quotes, \r\n
+function parseCSV(text) {
+  text = text.replace(/^﻿/, '');
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i+1] === '"') { cur += '"'; i++; } else q = false; }
+      else cur += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(cur.trim()); cur = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i+1] === '\n') i++;
+      row.push(cur.trim()); cur = '';
+      if (row.some(x => x !== '')) rows.push(row);
+      row = [];
+    } else cur += c;
+  }
+  row.push(cur.trim());
+  if (row.some(x => x !== '')) rows.push(row);
+  return rows;
+}
+function findCol(header, names) {
+  const h = header.map(x => x.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  for (const n of names) { const i = h.indexOf(n); if (i >= 0) return i; }
+  return -1;
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function renderPerformance() {
+  const tbody = document.getElementById('perfBody');
+  tbody.innerHTML = '';
+  let totP = 0, totA = 0;
+  stores.forEach((s, i) => {
+    totP += s.planned; totA += s.actual;
+    const loginNum = s.planned > 0 ? (s.actual / s.planned) * 100 : 0;
+    const login = loginNum.toFixed(1);
+    const gap = s.actual - s.planned;
+    const cls = loginNum >= 90 ? 'green' : (loginNum >= 70 ? 'yellow' : 'red');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td style="color:#38bdf8; font-weight:600;">${esc(s.name)}</td><td>${s.planned}</td><td>${s.actual}</td><td><span class="status-tag ${cls}">${login}%</span></td><td style="color:${gap >= 0 ? '#4ade80' : '#f87171'}; font-weight:600;">${gap > 0 ? '+' + gap : gap}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('kPlanned').innerText = totP;
+  document.getElementById('kActual').innerText = totA;
+  document.getElementById('kHubs').innerText = stores.length;
+  const pct = totP > 0 ? ((totA / totP) * 100).toFixed(0) + '%' : '0%';
+  document.getElementById('kLoginPct').innerText = pct + ' Login';
+}
+
+function initFilters() {
+  const hubSelect = document.getElementById('filterHub');
+  const vendorSelect = document.getElementById('filterVendor');
+  const hubCur = hubSelect.value, venCur = vendorSelect.value;
+  const hubs = [...new Set(riders.map(r => r.hub))].sort();
+  const vendors = [...new Set(riders.map(r => r.vendor))].sort();
+  hubSelect.innerHTML = '<option value="">All Hubs</option>';
+  vendorSelect.innerHTML = '<option value="">All Vendors</option>';
+  hubs.forEach(h => { const o = document.createElement('option'); o.value = h; o.textContent = h; hubSelect.appendChild(o); });
+  vendors.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; vendorSelect.appendChild(o); });
+  hubSelect.value = hubs.includes(hubCur) ? hubCur : '';
+  vendorSelect.value = vendors.includes(venCur) ? venCur : '';
+  document.getElementById('kRiders').innerText = riders.length;
+}
+
+function renderRiders() {
+  const hubF = document.getElementById('filterHub').value;
+  const venF = document.getElementById('filterVendor').value;
+  const search = document.getElementById('searchRider').value.toLowerCase();
+  const filtered = riders.filter(r => {
+    if (hubF && r.hub !== hubF) return false;
+    if (venF && r.vendor !== venF) return false;
+    if (search && !r.name.toLowerCase().includes(search) && !String(r.id).toLowerCase().includes(search)) return false;
+    return true;
+  });
+  const tbody = document.getElementById('riderBody');
+  tbody.innerHTML = '';
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">Koi rider nahi. "Upload Rider Sheet" se master list upload karein.</td></tr>';
+  }
+  filtered.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td style="color:#38bdf8;">${esc(r.hub)}</td><td style="font-weight:600;">${esc(r.name)}</td><td>${esc(r.id) || '-'}</td><td><span class="status-tag green">${esc(r.vendor)}</span></td><td style="font-size:12px;">${esc(r.phone) || '-'}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('showCount').innerText = filtered.length;
+}
+
+function renderVendor() {
+  const map = {};
+  riders.forEach(r => {
+    if (!map[r.vendor]) map[r.vendor] = { count: 0, hubs: new Set() };
+    map[r.vendor].count++; map[r.vendor].hubs.add(r.hub);
+  });
+  const sorted = Object.entries(map).sort((a, b) => b[1].count - a[1].count);
+  const tbody = document.getElementById('vendorBody');
+  tbody.innerHTML = '';
+  if (!sorted.length) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#94a3b8;">Rider Sheet upload karne par vendor summary dikhegi.</td></tr>';
+  sorted.forEach(([vendor, data]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="font-weight:600; color:#38bdf8;">${esc(vendor)}</td><td>${data.count}</td><td style="font-size:12px;">${esc([...data.hubs].join(', '))}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('kTopVendor').innerText = sorted.length ? sorted[0][0] : '-';
+}
+
+function renderNewJoin() {
+  document.getElementById('kNewJoin').innerText = newJoinRiders.length;
+  const tbody = document.getElementById('newJoinBody');
+  if (!newJoinRiders.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No new join data yet. Upload latest Rider Sheet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  newJoinRiders.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td style="color:#38bdf8;">${esc(r.hub)}</td><td style="font-weight:600;">${esc(r.name)} <span class="new-badge">NEW</span></td><td>${esc(r.vendor)}</td><td>${esc(r.phone) || '-'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderAll() { renderPerformance(); initFilters(); renderRiders(); renderVendor(); renderNewJoin(); }
+
+function downloadExcel() {
+  let csv = "S.No,Hub/Store,Planned,Actual,Login %,Gap\n";
+  stores.forEach((s, i) => {
+    const login = s.planned > 0 ? ((s.actual / s.planned) * 100).toFixed(1) : '0.0';
+    csv += `${i+1},${csvCell(s.name)},${s.planned},${s.actual},${login}%,${s.actual - s.planned}\n`;
+  });
+  csv += "\n\nRider Master\nHub,Rider Name,Rider ID,Vendor,Phone\n";
+  riders.forEach(r => { csv += [r.hub, r.name, r.id, r.vendor, r.phone].map(csvCell).join(',') + '\n'; });
+  const blob = new Blob(["﻿" + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Zippee_LastMile_Full_Report_' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  setStatus('✅ Excel (CSV) Report downloaded!');
+}
+
+function downloadPDF() {
+  setStatus('✅ Print / Save as PDF dialog opened. Choose "Save as PDF".');
+  window.print();
+}
+
+function readFile(file, cb) {
+  const reader = new FileReader();
+  reader.onload = evt => { try { cb(evt.target.result); } catch (err) { setStatus('❌ Error: ' + err.message); } };
+  reader.onerror = () => setStatus('❌ File read nahi ho payi.');
+  reader.readAsText(file);
+}
+
+// Daily CSV: columns Hub/Store, Planned, Actual
+function handleCSV(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  readFile(file, text => {
+    const rows = parseCSV(text);
+    if (rows.length < 2) return setStatus('❌ CSV khali hai.');
+    const h = rows[0];
+    const iHub = findCol(h, ['hub', 'store', 'hubstore', 'hubname', 'storename', 'name']);
+    const iPlan = findCol(h, ['planned', 'plan']);
+    const iAct = findCol(h, ['actual', 'actuallogged', 'logged']);
+    if (iHub < 0 || iPlan < 0 || iAct < 0) {
+      return setStatus('❌ Columns chahiye: Hub/Store, Planned, Actual (header row ke saath).');
+    }
+    const out = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r[iHub]) continue;
+      out.push({ name: r[iHub], planned: parseInt(r[iPlan], 10) || 0, actual: parseInt(r[iAct], 10) || 0 });
+    }
+    if (!out.length) return setStatus('❌ CSV mein koi valid row nahi mili.');
+    stores = out;
+    saveState(); renderPerformance();
+    setStatus('✅ Daily CSV loaded: ' + file.name + ' (' + out.length + ' hubs)');
+  });
+  e.target.value = '';
+}
+
+// Rider sheet: Hub, Rider Name, Rider ID, Vendor, Phone
+function handleRiderUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  readFile(file, text => {
+    const rows = parseCSV(text);
+    const h = rows[0] || [];
+    let iHub = findCol(h, ['hub', 'store', 'hubstore']);
+    let iName = findCol(h, ['ridername', 'name', 'rider']);
+    let iId = findCol(h, ['riderid', 'id']);
+    let iVen = findCol(h, ['vendor', 'vendorname']);
+    let iPh = findCol(h, ['phone', 'mobile', 'phoneno', 'contact']);
+    if (iHub < 0 && iName < 0) { iHub = 0; iName = 1; iId = 2; iVen = 3; iPh = 4; } // purana fixed-order format
+    const fresh = [];
+    for (let i = 1; i < rows.length; i++) {
+      const c = rows[i];
+      const name = iName >= 0 ? c[iName] : '';
+      if (!name) continue;
+      fresh.push({
+        hub: (iHub >= 0 && c[iHub]) || 'Unknown', name,
+        id: (iId >= 0 && c[iId]) || '', vendor: (iVen >= 0 && c[iVen]) || 'Unknown',
+        phone: (iPh >= 0 && c[iPh]) || ''
+      });
+    }
+    if (!fresh.length) return setStatus('❌ Rider sheet mein koi valid rider nahi mila.');
+    if (riders.length === 0) newJoinRiders = [];
+    else {
+      const key = r => (r.id ? 'id:' + r.id : 'n:' + r.name.toLowerCase() + '|' + r.phone);
+      const old = new Set(riders.map(key));
+      newJoinRiders = fresh.filter(r => !old.has(key(r)));
+    }
+    riders = fresh;
+    saveState(); renderAll();
+    setStatus('✅ Rider Master updated! ' + riders.length + ' riders | New Join: ' + newJoinRiders.length);
+  });
+  e.target.value = '';
+}
+
+
+// Google Sheet (DASHBOARD tab) se hub Planned/Actual khinchna
+function parseHubTable(text) {
+  const rows = parseCSV(text);
+  let hi = -1;
+  for (let i = 0; i < rows.length; i++) {
+    if (findCol(rows[i], ['sno']) >= 0 && findCol(rows[i], ['hubstore']) >= 0 &&
+        findCol(rows[i], ['planned']) >= 0 && findCol(rows[i], ['actual']) >= 0) { hi = i; break; }
+  }
+  if (hi < 0) return null;
+  const h = rows[hi];
+  const iS = findCol(h, ['sno']), iH = findCol(h, ['hubstore']);
+  const iP = findCol(h, ['planned']), iA = findCol(h, ['actual']);
+  const num = v => parseInt(String(v || '').replace(/[^0-9-]/g, ''), 10) || 0;
+  const out = [];
+  for (let i = hi + 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!/^\d+$/.test(r[iS] || '') || !r[iH]) break;
+    out.push({ name: r[iH], planned: num(r[iP]), actual: num(r[iA]) });
+  }
+  return out;
+}
+
+function loadFromSheet(manual) {
+  if (manual) setStatus('⏳ Google Sheet se data la raha hoon...');
+  fetch(SHEET_URL + '&_=' + Date.now(), { cache: 'no-store' })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(text => {
+      const hubs = parseHubTable(text);
+      if (!hubs || !hubs.length) throw new Error('Hub table nahi mili (DASHBOARD tab ka layout badla?)');
+      stores = hubs;
+      saveState(); renderPerformance();
+      setStatus('✅ Google Sheet se update: ' + hubs.length + ' hubs • ' + new Date().toLocaleTimeString('en-IN'));
+    })
+    .catch(err => {
+      setStatus('⚠️ Sheet se data nahi aaya (' + err.message + '). Purana saved data dikh raha hai. Daily CSV upload kar sakte hain.');
+    });
+}
+
+loadState();
+renderAll();
+loadFromSheet(false);
+</script>
+</body>
+</html>
