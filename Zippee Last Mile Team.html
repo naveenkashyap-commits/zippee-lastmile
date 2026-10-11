@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<!-- saved from url=(0142)file:///C:/Users/aiim5/AppData/Local/Temp/98fc5801-b62e-4632-92cc-f14ee3855718_zippee-lastmile-github%20(1).zip.718/zippee-lastmile/index.html -->
+<html lang="hi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zippee Last Mile Team</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+    body { background: #0f172a; color: #ffffff; padding: 16px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .card { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 16px; }
+    h1 { font-size: 22px; color: #38bdf8; margin-bottom: 6px; }
+    h3 { color: #38bdf8; margin-bottom: 12px; font-size: 16px; }
+    .badge { display: inline-block; background: #0284c7; color: #fff; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 12px; margin-bottom: 12px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .kpi-card { background: #1e293b; padding: 14px; border-radius: 10px; border: 1px solid #334155; text-align: center; }
+    .kpi-title { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+    .kpi-num { font-size: 26px; font-weight: 700; color: #fff; margin: 4px 0; }
+    .kpi-sub { font-size: 11px; font-weight: 600; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab { background: #334155; color: #94a3b8; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
+    .tab.active { background: #0284c7; color: #fff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .filters { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+    select, input[type="text"], input[type="number"] { padding: 8px 12px; border: 1px solid #334155; border-radius: 6px; background: #0f172a; color: #fff; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #334155; }
+    th { background: #0f172a; color: #38bdf8; font-weight: 600; position: sticky; top: 0; }
+    tr:hover { background: #334155; }
+    .status-tag { padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .green { background: #166534; color: #4ade80; }
+    .yellow { background: #854d0e; color: #facc15; }
+    .red { background: #991b1b; color: #f87171; }
+    .btn { border: none; padding: 9px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-blue { background: #0284c7; color: white; }
+    .btn-green { background: #16a34a; color: white; }
+    .btn-orange { background: #d97706; color: white; }
+    .btn-purple { background: #7c3aed; color: white; }
+    .search-box { flex: 1; min-width: 180px; }
+    .table-wrap { max-height: 520px; overflow-y: auto; border-radius: 8px; }
+    .upload-box { background: #0f172a; border: 2px dashed #38bdf8; border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; margin-bottom: 14px; transition: 0.2s; }
+    .upload-box:hover { background: #1e293b; border-color: #7dd3fc; }
+    .btn-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+    #csvFileInput, #riderFileInput { display: none; }
+    .note { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="card" style="text-align:center;">
+    <div style="font-size:32px;">🔱</div>
+    <h1>Zippee Last Mile Team</h1>
+    <div class="badge">Naveen Kashyap • Delhi-NCR</div>
+    <div style="font-size:12px; color:#94a3b8; margin-top:6px;">Rider Master + Hub Performance | Live Dashboard</div>
+
+    <!-- Upload + Download Buttons -->
+    <div class="btn-group">
+      <button class="btn btn-blue" onclick="document.getElementById('csvFileInput').click()">📂 Upload Daily CSV</button>
+      <button class="btn btn-purple" onclick="document.getElementById('riderFileInput').click()">📋 Upload Rider Sheet</button>
+      <button class="btn btn-orange" onclick="downloadPerformance()">📥 Download Hub Report</button>
+      <button class="btn btn-green" onclick="downloadRiders()">📥 Download Rider Master</button>
+    </div>
+    <input type="file" id="csvFileInput" accept=".csv" onchange="handleCSV(event)">
+    <input type="file" id="riderFileInput" accept=".csv,.xlsx" onchange="handleRiderUpload(event)">
+    <div class="note" id="uploadStatus">CSV upload se orders/status update hoga • Rider sheet se master list update hogi</div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Hubs</div>
+      <div class="kpi-num" id="kHubs">12</div>
+      <div class="kpi-sub" style="color:#38bdf8;">Delhi-NCR</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Total Riders (Master)</div>
+      <div class="kpi-num" id="kRiders">156</div>
+      <div class="kpi-sub" style="color:#38bdf8;">In Master List</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Planned Riders</div>
+      <div class="kpi-num" id="kPlanned">168</div>
+      <div class="kpi-sub" style="color:#38bdf8;">Today</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Actual Logged</div>
+      <div class="kpi-num" id="kActual">175</div>
+      <div class="kpi-sub" style="color:#4ade80;" id="kLoginPct">104% Login</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Top Vendor</div>
+      <div class="kpi-num" style="font-size:18px;" id="kTopVendor">ZD</div>
+      <div class="kpi-sub" style="color:#38bdf8;">Most Riders</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('performance', this)">📊 Hub Performance</button>
+    <button class="tab" onclick="showTab('riders', this)">👥 Rider Master</button>
+    <button class="tab" onclick="showTab('vendor', this)">🏷 Vendor Summary</button>
+  </div>
+
+  <!-- TAB 1: Hub Performance -->
+  <div id="performance" class="tab-content active">
+    <div class="card">
+      <h3>🏬 DELHI-NCR HUB PERFORMANCE</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Hub / Store</th>
+              <th>Planned</th>
+              <th>Actual</th>
+              <th>Login %</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="perfBody"><tr>
+      <td>1</td>
+      <td style="color:#38bdf8; font-weight:600;">Okhla SDD</td>
+      <td>30</td>
+      <td>29</td>
+      <td><span class="status-tag green">96.7%</span></td>
+      <td style="color:#f87171">-1</td>
+    </tr><tr>
+      <td>2</td>
+      <td style="color:#38bdf8; font-weight:600;">Dwarka SDD</td>
+      <td>10</td>
+      <td>11</td>
+      <td><span class="status-tag green">110.0%</span></td>
+      <td style="color:#4ade80">+1</td>
+    </tr><tr>
+      <td>3</td>
+      <td style="color:#38bdf8; font-weight:600;">Wazirpur SDD</td>
+      <td>17</td>
+      <td>17</td>
+      <td><span class="status-tag green">100.0%</span></td>
+      <td style="color:#4ade80">0</td>
+    </tr><tr>
+      <td>4</td>
+      <td style="color:#38bdf8; font-weight:600;">Ghaziabad SDD</td>
+      <td>13</td>
+      <td>14</td>
+      <td><span class="status-tag green">107.7%</span></td>
+      <td style="color:#4ade80">+1</td>
+    </tr><tr>
+      <td>5</td>
+      <td style="color:#38bdf8; font-weight:600;">Gurugram SDD</td>
+      <td>5</td>
+      <td>8</td>
+      <td><span class="status-tag green">160.0%</span></td>
+      <td style="color:#4ade80">+3</td>
+    </tr><tr>
+      <td>6</td>
+      <td style="color:#38bdf8; font-weight:600;">Gurugram Clinikally</td>
+      <td>6</td>
+      <td>6</td>
+      <td><span class="status-tag green">100.0%</span></td>
+      <td style="color:#4ade80">0</td>
+    </tr><tr>
+      <td>7</td>
+      <td style="color:#38bdf8; font-weight:600;">Noida SDD</td>
+      <td>14</td>
+      <td>17</td>
+      <td><span class="status-tag green">121.4%</span></td>
+      <td style="color:#4ade80">+3</td>
+    </tr><tr>
+      <td>8</td>
+      <td style="color:#38bdf8; font-weight:600;">Ozi Dwarka Sector 3</td>
+      <td>10</td>
+      <td>12</td>
+      <td><span class="status-tag green">120.0%</span></td>
+      <td style="color:#4ade80">+2</td>
+    </tr><tr>
+      <td>9</td>
+      <td style="color:#38bdf8; font-weight:600;">Ozi Noida Sec 1</td>
+      <td>10</td>
+      <td>13</td>
+      <td><span class="status-tag green">130.0%</span></td>
+      <td style="color:#4ade80">+3</td>
+    </tr><tr>
+      <td>10</td>
+      <td style="color:#38bdf8; font-weight:600;">Ozi Gurugram Sec 84</td>
+      <td>15</td>
+      <td>14</td>
+      <td><span class="status-tag green">93.3%</span></td>
+      <td style="color:#f87171">-1</td>
+    </tr><tr>
+      <td>11</td>
+      <td style="color:#38bdf8; font-weight:600;">Ozi Gurugram Sec 52</td>
+      <td>8</td>
+      <td>4</td>
+      <td><span class="status-tag red">50.0%</span></td>
+      <td style="color:#f87171">-4</td>
+    </tr><tr>
+      <td>12</td>
+      <td style="color:#38bdf8; font-weight:600;">Ozi Noida 62</td>
+      <td>30</td>
+      <td>30</td>
+      <td><span class="status-tag green">100.0%</span></td>
+      <td style="color:#4ade80">0</td>
+    </tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Rider Master -->
+  <div id="riders" class="tab-content">
+    <div class="card">
+      <h3>👥 RIDER MASTER LIST (Hub → Rider → Vendor)</h3>
+      <div class="filters">
+        <select id="filterHub" onchange="renderRiders()"><option value="">All Hubs</option><option value="Dwarka SDD">Dwarka SDD</option><option value="Ghaziabad SDD">Ghaziabad SDD</option><option value="Gurugram Clinikally">Gurugram Clinikally</option><option value="Gurugram SDD">Gurugram SDD</option><option value="Noida SDD">Noida SDD</option><option value="Okhla SDD">Okhla SDD</option><option value="Wazirpur SDD">Wazirpur SDD</option></select>
+        <select id="filterVendor" onchange="renderRiders()"><option value="">All Vendors</option><option value="GIG for U">GIG for U</option><option value="HHCL">HHCL</option><option value="Nitariya">Nitariya</option><option value="RDX">RDX</option><option value="Rapydex">Rapydex</option><option value="SHREEVED">SHREEVED</option><option value="Shreeved">Shreeved</option><option value="Speedio">Speedio</option><option value="Talento">Talento</option><option value="Unknown">Unknown</option><option value="ZD">ZD</option><option value="ZETI">ZETI</option></select>
+        <input type="text" class="search-box" id="searchRider" placeholder="Search Rider Name / ID..." oninput="renderRiders()">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Hub</th>
+              <th>Rider Name</th>
+              <th>Rider ID</th>
+              <th>Vendor</th>
+              <th>Phone</th>
+            </tr>
+          </thead>
+          <tbody id="riderBody"><tr>
+      <td>1</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Kapil Kumar</td>
+      <td>15902.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">9319218987</td>
+    </tr><tr>
+      <td>2</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Sameer Khan</td>
+      <td>17759.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">7367067018</td>
+    </tr><tr>
+      <td>3</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Vineet Kumar</td>
+      <td>15761.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">8882197063</td>
+    </tr><tr>
+      <td>4</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Shivam giri</td>
+      <td>12412.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">9650944038</td>
+    </tr><tr>
+      <td>5</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Inderpal Singh</td>
+      <td>9858.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">7428250424</td>
+    </tr><tr>
+      <td>6</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Nishu Paswan</td>
+      <td>12427.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">9667442943</td>
+    </tr><tr>
+      <td>7</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Priyanshu Thakur</td>
+      <td>6535.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">8586025882</td>
+    </tr><tr>
+      <td>8</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Zahur Haider</td>
+      <td>7620.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">8700610923</td>
+    </tr><tr>
+      <td>9</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Vishal Aggarwal</td>
+      <td>9845.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">7532001750</td>
+    </tr><tr>
+      <td>10</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Kasid Hussain</td>
+      <td>6739.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">7503422828</td>
+    </tr><tr>
+      <td>11</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Wasim Abbas</td>
+      <td>346.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">9953538112</td>
+    </tr><tr>
+      <td>12</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Inderjeet</td>
+      <td>6597.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">7428250424</td>
+    </tr><tr>
+      <td>13</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Shahnawaz Khan</td>
+      <td>15479.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">9084154449</td>
+    </tr><tr>
+      <td>14</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">farman</td>
+      <td>9510.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">9717939099</td>
+    </tr><tr>
+      <td>15</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Priyanshu Thakur</td>
+      <td>56791.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">8586025882</td>
+    </tr><tr>
+      <td>16</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Inderjeet kumar</td>
+      <td>57211.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">8851613299</td>
+    </tr><tr>
+      <td>17</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Vikash</td>
+      <td>1452.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">9718681452</td>
+    </tr><tr>
+      <td>18</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Wasim Abbas</td>
+      <td>98186.0</td>
+      <td><span class="status-tag green">Speedio</span></td>
+      <td style="font-size:12px;">9953538112</td>
+    </tr><tr>
+      <td>19</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Rajesh Diwakar</td>
+      <td>16461.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">9958934259</td>
+    </tr><tr>
+      <td>20</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Abhishek Sharma</td>
+      <td>15650.0</td>
+      <td><span class="status-tag green">SHREEVED</span></td>
+      <td style="font-size:12px;">7827602833</td>
+    </tr><tr>
+      <td>21</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Sandeep Kumar</td>
+      <td>12752.0</td>
+      <td><span class="status-tag green">SHREEVED</span></td>
+      <td style="font-size:12px;">9315717843</td>
+    </tr><tr>
+      <td>22</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Ram murat Shukla</td>
+      <td>12566.0</td>
+      <td><span class="status-tag green">SHREEVED</span></td>
+      <td style="font-size:12px;">9953250563</td>
+    </tr><tr>
+      <td>23</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Dharmendra Singh</td>
+      <td>12480.0</td>
+      <td><span class="status-tag green">SHREEVED</span></td>
+      <td style="font-size:12px;">9773589499</td>
+    </tr><tr>
+      <td>24</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Rajesh Kumar</td>
+      <td>12457.0</td>
+      <td><span class="status-tag green">SHREEVED</span></td>
+      <td style="font-size:12px;">9212161375</td>
+    </tr><tr>
+      <td>25</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Sushil Kumar</td>
+      <td>12426.0</td>
+      <td><span class="status-tag green">SHREEVED</span></td>
+      <td style="font-size:12px;">9958196491</td>
+    </tr><tr>
+      <td>26</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Rajkumar Singh</td>
+      <td>12425.0</td>
+      <td><span class="status-tag green">SHREEVED</span></td>
+      <td style="font-size:12px;">8586074473</td>
+    </tr><tr>
+      <td>27</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Satynarayan Pandey</td>
+      <td>-</td>
+      <td><span class="status-tag green">ZETI</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>28</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Rahul Singh</td>
+      <td>-</td>
+      <td><span class="status-tag green">ZETI</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>29</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Sundaram Pandey</td>
+      <td>-</td>
+      <td><span class="status-tag green">ZETI</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>30</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Aniket</td>
+      <td>-</td>
+      <td><span class="status-tag green">ZETI</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>31</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Rajeev Kumar</td>
+      <td>-</td>
+      <td><span class="status-tag green">ZETI</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>32</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Pankaj Chhabra</td>
+      <td>-</td>
+      <td><span class="status-tag green">Shreeved</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>33</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Ankit Singh</td>
+      <td>-</td>
+      <td><span class="status-tag green">Shreeved</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>34</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">SUBHASH CHAND</td>
+      <td>-</td>
+      <td><span class="status-tag green">Shreeved</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>35</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Mayank Raghav</td>
+      <td>-</td>
+      <td><span class="status-tag green">Shreeved</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>36</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">PAVAN</td>
+      <td>-</td>
+      <td><span class="status-tag green">Talento</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>37</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">NEERAJ</td>
+      <td>-</td>
+      <td><span class="status-tag green">Talento</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>38</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">RINKU</td>
+      <td>-</td>
+      <td><span class="status-tag green">Talento</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>39</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">AKHILESH</td>
+      <td>-</td>
+      <td><span class="status-tag green">Talento</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>40</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">AJAY</td>
+      <td>-</td>
+      <td><span class="status-tag green">Talento</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>41</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">DHARAM PAL</td>
+      <td>-</td>
+      <td><span class="status-tag green">GIG for U</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>42</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">JAI YADAV</td>
+      <td>-</td>
+      <td><span class="status-tag green">Nitariya</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>43</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Shahbaz Khan</td>
+      <td>6532.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9911508101</td>
+    </tr><tr>
+      <td>44</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Gaurav Gupta</td>
+      <td>6750.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9311846518</td>
+    </tr><tr>
+      <td>45</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Chand</td>
+      <td>6629.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">8826583108</td>
+    </tr><tr>
+      <td>46</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Gaurav</td>
+      <td>6617.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">8130407914</td>
+    </tr><tr>
+      <td>47</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Ajit</td>
+      <td>6670.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">7217845284</td>
+    </tr><tr>
+      <td>48</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Sandeep</td>
+      <td>12443.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">8375821588</td>
+    </tr><tr>
+      <td>49</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Raja</td>
+      <td>15623.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">87501 42479</td>
+    </tr><tr>
+      <td>50</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">chander</td>
+      <td>15289.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">88021 30197</td>
+    </tr><tr>
+      <td>51</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Puneet</td>
+      <td>12460.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">96438 82688</td>
+    </tr><tr>
+      <td>52</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Vali Mohammad</td>
+      <td>18894.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">9759375522</td>
+    </tr><tr>
+      <td>53</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Sonu Bhatt</td>
+      <td>15900.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">9643649529</td>
+    </tr><tr>
+      <td>54</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Jaychand Kumar</td>
+      <td>14580.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">8449275334</td>
+    </tr><tr>
+      <td>55</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Saurav Sharma</td>
+      <td>13609.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">9999146960</td>
+    </tr><tr>
+      <td>56</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Shivam Kumar</td>
+      <td>12590.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8588969751</td>
+    </tr><tr>
+      <td>57</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Anoj Chauhan</td>
+      <td>12281.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9068580096</td>
+    </tr><tr>
+      <td>58</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Rahul Kumar</td>
+      <td>12210.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">8826867660</td>
+    </tr><tr>
+      <td>59</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">AJAY Thakur</td>
+      <td>11506.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">7703838571</td>
+    </tr><tr>
+      <td>60</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Arvind Kumar</td>
+      <td>9250.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">9905455322</td>
+    </tr><tr>
+      <td>61</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Abhishek Kumar</td>
+      <td>6672.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9599893844</td>
+    </tr><tr>
+      <td>62</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Deepak Kanaujiya</td>
+      <td>6630.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">7982682988</td>
+    </tr><tr>
+      <td>63</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Subhas Kumar</td>
+      <td>190.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">7398966894</td>
+    </tr><tr>
+      <td>64</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Laxman Kumar Jha</td>
+      <td>173.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">7739747296</td>
+    </tr><tr>
+      <td>65</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Ankush Kumar</td>
+      <td>171.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8810275430</td>
+    </tr><tr>
+      <td>66</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Devender Kumar</td>
+      <td>169.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9319236052</td>
+    </tr><tr>
+      <td>67</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Ajeet Kumar</td>
+      <td>143.0</td>
+      <td><span class="status-tag green">Rapydex</span></td>
+      <td style="font-size:12px;">6396600227</td>
+    </tr><tr>
+      <td>68</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Anwer</td>
+      <td>-</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>69</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Harish Kumar</td>
+      <td>12442.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9968760904</td>
+    </tr><tr>
+      <td>70</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Musharraf Hussain</td>
+      <td>12434.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">8210319022</td>
+    </tr><tr>
+      <td>71</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Vikas Singh</td>
+      <td>12428.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">7042461451</td>
+    </tr><tr>
+      <td>72</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Md Zaferuddin</td>
+      <td>12424.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9911671619</td>
+    </tr><tr>
+      <td>73</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Ashutosh Mishra</td>
+      <td>12423.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9654965369</td>
+    </tr><tr>
+      <td>74</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Sachin Kumar</td>
+      <td>6769.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">8851645603</td>
+    </tr><tr>
+      <td>75</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">yashu Sharma</td>
+      <td>6745.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9717414845</td>
+    </tr><tr>
+      <td>76</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Deepak Kumar</td>
+      <td>6668.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9350155913</td>
+    </tr><tr>
+      <td>77</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Ambrish Rai</td>
+      <td>6538.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">7678520550</td>
+    </tr><tr>
+      <td>78</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Chandan Kumar</td>
+      <td>416.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">6299727134</td>
+    </tr><tr>
+      <td>79</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Rajender Parshad</td>
+      <td>415.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">7053324405</td>
+    </tr><tr>
+      <td>80</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Raj Kumar</td>
+      <td>148.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">8882324328</td>
+    </tr><tr>
+      <td>81</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Zd Navneet Kumar</td>
+      <td>18821.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">8527413556</td>
+    </tr><tr>
+      <td>82</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Arun Mishra</td>
+      <td>16804.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9310399065</td>
+    </tr><tr>
+      <td>83</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Navneet Mishra</td>
+      <td>16431.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9811205203</td>
+    </tr><tr>
+      <td>84</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">ZD vinod Kumar</td>
+      <td>14648.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">8800431296</td>
+    </tr><tr>
+      <td>85</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">ZD Pavan</td>
+      <td>12974.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9560321423</td>
+    </tr><tr>
+      <td>86</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Shamim Ali</td>
+      <td>116.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9958607974</td>
+    </tr><tr>
+      <td>87</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Dilip Dilip</td>
+      <td>132.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9718430617</td>
+    </tr><tr>
+      <td>88</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Mohd Anwar</td>
+      <td>131.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9625621131</td>
+    </tr><tr>
+      <td>89</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Ravi Kumar singh</td>
+      <td>18896.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9873735262</td>
+    </tr><tr>
+      <td>90</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Manoj Gupta</td>
+      <td>7338.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9911929085</td>
+    </tr><tr>
+      <td>91</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Rajesh Kumar</td>
+      <td>9641.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8368455530</td>
+    </tr><tr>
+      <td>92</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Ravi Kumar</td>
+      <td>8041.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8368460104</td>
+    </tr><tr>
+      <td>93</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Anil Kumar</td>
+      <td>18877.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8527755984</td>
+    </tr><tr>
+      <td>94</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">INDRA Jeet</td>
+      <td>112.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">7037898233</td>
+    </tr><tr>
+      <td>95</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Akash Kumar</td>
+      <td>115.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">7983230416</td>
+    </tr><tr>
+      <td>96</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Deepak Kumar</td>
+      <td>13179.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">8743980325</td>
+    </tr><tr>
+      <td>97</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Mohamad Bilal</td>
+      <td>117.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">8285628874</td>
+    </tr><tr>
+      <td>98</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Akber Akber</td>
+      <td>130.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">7859915016</td>
+    </tr><tr>
+      <td>99</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Akeel Ake</td>
+      <td>8812.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">8882554489</td>
+    </tr><tr>
+      <td>100</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Jitender Singh</td>
+      <td>19561.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9250260317</td>
+    </tr><tr>
+      <td>101</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Sahil Ali</td>
+      <td>9288.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8920425809</td>
+    </tr><tr>
+      <td>102</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Raju Mukhiya</td>
+      <td>14801.0</td>
+      <td><span class="status-tag green">RDX</span></td>
+      <td style="font-size:12px;">9971307467</td>
+    </tr><tr>
+      <td>103</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Sudheer Kumar</td>
+      <td>123.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">9369688590</td>
+    </tr><tr>
+      <td>104</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Jai prakash Prakash</td>
+      <td>9452.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9582717112</td>
+    </tr><tr>
+      <td>105</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Sudhir Yadav</td>
+      <td>19046.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8006004555</td>
+    </tr><tr>
+      <td>106</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Amit Daksh</td>
+      <td>13879.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9560612661</td>
+    </tr><tr>
+      <td>107</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Sunil Kumar</td>
+      <td>151.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8745825853</td>
+    </tr><tr>
+      <td>108</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">MD Rashid</td>
+      <td>12110.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9818988238</td>
+    </tr><tr>
+      <td>109</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Radhe Shyam</td>
+      <td>118.0</td>
+      <td><span class="status-tag green">RDX</span></td>
+      <td style="font-size:12px;">8750046381</td>
+    </tr><tr>
+      <td>110</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Sumit Pandat</td>
+      <td>10494.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9560908792</td>
+    </tr><tr>
+      <td>111</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Jitender Sharma</td>
+      <td>7107.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8882047508</td>
+    </tr><tr>
+      <td>112</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Tanuj Khanna</td>
+      <td>19632.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9711700144</td>
+    </tr><tr>
+      <td>113</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Mohd Wahid</td>
+      <td>3064.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9162956770</td>
+    </tr><tr>
+      <td>114</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Md Sujahir</td>
+      <td>9558.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9811507632</td>
+    </tr><tr>
+      <td>115</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Deepak sahu Sahu</td>
+      <td>9229.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9315554292</td>
+    </tr><tr>
+      <td>116</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Salil Kumar</td>
+      <td>12254.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8858660507</td>
+    </tr><tr>
+      <td>117</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">BRIJ GOPAL</td>
+      <td>13780.0</td>
+      <td><span class="status-tag green">RDX</span></td>
+      <td style="font-size:12px;">9311365244</td>
+    </tr><tr>
+      <td>118</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Wasim Ahmad</td>
+      <td>19023.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8851511909</td>
+    </tr><tr>
+      <td>119</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Paras Verma</td>
+      <td>19138.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">9205068617</td>
+    </tr><tr>
+      <td>120</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Dilshad Alam</td>
+      <td>19042.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">7838160803</td>
+    </tr><tr>
+      <td>121</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Vishal Kumar</td>
+      <td>18547.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8383958530</td>
+    </tr><tr>
+      <td>122</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Sumit kumar Sharmaa</td>
+      <td>15283.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8796621462</td>
+    </tr><tr>
+      <td>123</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Vipin Kumar</td>
+      <td>126.0</td>
+      <td><span class="status-tag green">ZD</span></td>
+      <td style="font-size:12px;">7303830403</td>
+    </tr><tr>
+      <td>124</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Raushan Kumar</td>
+      <td>17148.0</td>
+      <td><span class="status-tag green">HHCL</span></td>
+      <td style="font-size:12px;">8595063062</td>
+    </tr><tr>
+      <td>125</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Kartikeya</td>
+      <td>-</td>
+      <td><span class="status-tag green">Shreeved</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>126</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Chandan</td>
+      <td>-</td>
+      <td><span class="status-tag green">Shreeved</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>127</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Tikam singh</td>
+      <td>1785.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>128</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Neeraj Singh</td>
+      <td>1070.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>129</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Raja Raja</td>
+      <td>1156.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>130</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Vikash kumar</td>
+      <td>1809.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>131</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Chander Gupta</td>
+      <td>1142.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>132</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Ajit Kumar</td>
+      <td>975.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>133</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Vinod Raghuvanshi</td>
+      <td>1813.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>134</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Mohit panwar</td>
+      <td>1814.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>135</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Jittenter</td>
+      <td>1812.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>136</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Gaurav D</td>
+      <td>969.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>137</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">RAJA KUMAR</td>
+      <td>1797.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>138</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Akash guchait</td>
+      <td>1806.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>139</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Rahul Rathore</td>
+      <td>1820.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>140</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Sandip</td>
+      <td>1808.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>141</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Md arif</td>
+      <td>1800.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>142</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Ankit sahu</td>
+      <td>1810.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>143</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Farman Ahmed</td>
+      <td>1003.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>144</td>
+      <td style="color:#38bdf8;">Gurugram SDD</td>
+      <td style="font-weight:600;">Kartikey awasthi</td>
+      <td>1799.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>145</td>
+      <td style="color:#38bdf8;">Gurugram Clinikally</td>
+      <td style="font-weight:600;">Bhagwat</td>
+      <td>1803.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>146</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Md arman</td>
+      <td>1798.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>147</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Manish gupta</td>
+      <td>1796.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>148</td>
+      <td style="color:#38bdf8;">Noida SDD</td>
+      <td style="font-weight:600;">Anshu Kumar</td>
+      <td>978.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>149</td>
+      <td style="color:#38bdf8;">Ghaziabad SDD</td>
+      <td style="font-weight:600;">Saurabh</td>
+      <td>1781.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>150</td>
+      <td style="color:#38bdf8;">Dwarka SDD</td>
+      <td style="font-weight:600;">Punit Chauhan</td>
+      <td>1072.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>151</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Sachin Sharma</td>
+      <td>1825.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>152</td>
+      <td style="color:#38bdf8;">Wazirpur SDD</td>
+      <td style="font-weight:600;">Jay parkssh</td>
+      <td>1801.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>153</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">M D ALAM</td>
+      <td>1805.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>154</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Aman Singh</td>
+      <td>1028.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>155</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Sohail Khan</td>
+      <td>1824.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr><tr>
+      <td>156</td>
+      <td style="color:#38bdf8;">Okhla SDD</td>
+      <td style="font-weight:600;">Hasmi</td>
+      <td>988.0</td>
+      <td><span class="status-tag green">Unknown</span></td>
+      <td style="font-size:12px;">-</td>
+    </tr></tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px; font-size:12px; color:#94a3b8;">
+        Showing <span id="showCount">156</span> riders
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Vendor Summary -->
+  <div id="vendor" class="tab-content">
+    <div class="card">
+      <h3>🏷 VENDOR-WISE SUMMARY</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Vendor</th>
+              <th>Total Riders</th>
+              <th>Hubs Present</th>
+            </tr>
+          </thead>
+          <tbody id="vendorBody"><tr>
+      <td style="font-weight:600; color:#38bdf8;">ZD</td>
+      <td>35</td>
+      <td style="font-size:12px;">Ghaziabad SDD, Dwarka SDD, Okhla SDD, Wazirpur SDD</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">HHCL</td>
+      <td>32</td>
+      <td style="font-size:12px;">Noida SDD, Okhla SDD</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">Unknown</td>
+      <td>30</td>
+      <td style="font-size:12px;">Noida SDD, Gurugram SDD, Dwarka SDD, Okhla SDD, Gurugram Clinikally, Ghaziabad SDD, Wazirpur SDD</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">Rapydex</td>
+      <td>18</td>
+      <td style="font-size:12px;">Ghaziabad SDD, Gurugram SDD, Dwarka SDD, Noida SDD</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">Speedio</td>
+      <td>13</td>
+      <td style="font-size:12px;">Ghaziabad SDD</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">SHREEVED</td>
+      <td>7</td>
+      <td style="font-size:12px;">Gurugram SDD</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">Shreeved</td>
+      <td>6</td>
+      <td style="font-size:12px;">Gurugram Clinikally</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">ZETI</td>
+      <td>5</td>
+      <td style="font-size:12px;">Gurugram Clinikally</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">Talento</td>
+      <td>5</td>
+      <td style="font-size:12px;">Gurugram Clinikally</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">RDX</td>
+      <td>3</td>
+      <td style="font-size:12px;">Okhla SDD</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">GIG for U</td>
+      <td>1</td>
+      <td style="font-size:12px;">Gurugram Clinikally</td>
+    </tr><tr>
+      <td style="font-weight:600; color:#38bdf8;">Nitariya</td>
+      <td>1</td>
+      <td style="font-size:12px;">Gurugram Clinikally</td>
+    </tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ========== DATA ==========
+let stores = [
+  { name: "Okhla SDD", planned: 30, actual: 29 },
+  { name: "Dwarka SDD", planned: 10, actual: 11 },
+  { name: "Wazirpur SDD", planned: 17, actual: 17 },
+  { name: "Ghaziabad SDD", planned: 13, actual: 14 },
+  { name: "Gurugram SDD", planned: 5, actual: 8 },
+  { name: "Gurugram Clinikally", planned: 6, actual: 6 },
+  { name: "Noida SDD", planned: 14, actual: 17 },
+  { name: "Ozi Dwarka Sector 3", planned: 10, actual: 12 },
+  { name: "Ozi Noida Sec 1", planned: 10, actual: 13 },
+  { name: "Ozi Gurugram Sec 84", planned: 15, actual: 14 },
+  { name: "Ozi Gurugram Sec 52", planned: 8, actual: 4 },
+  { name: "Ozi Noida 62", planned: 30, actual: 30 }
+];
+
+let riders = [{"hub": "Ghaziabad SDD", "name": "Kapil Kumar", "id": "15902.0", "vendor": "Speedio", "phone": "9319218987"}, {"hub": "Ghaziabad SDD", "name": "Sameer Khan", "id": "17759.0", "vendor": "Speedio", "phone": "7367067018"}, {"hub": "Ghaziabad SDD", "name": "Vineet Kumar", "id": "15761.0", "vendor": "Speedio", "phone": "8882197063"}, {"hub": "Ghaziabad SDD", "name": "Shivam giri", "id": "12412.0", "vendor": "Rapydex", "phone": "9650944038"}, {"hub": "Ghaziabad SDD", "name": "Inderpal Singh", "id": "9858.0", "vendor": "Speedio", "phone": "7428250424"}, {"hub": "Ghaziabad SDD", "name": "Nishu Paswan", "id": "12427.0", "vendor": "Rapydex", "phone": "9667442943"}, {"hub": "Ghaziabad SDD", "name": "Priyanshu Thakur", "id": "6535.0", "vendor": "Speedio", "phone": "8586025882"}, {"hub": "Ghaziabad SDD", "name": "Zahur Haider", "id": "7620.0", "vendor": "Speedio", "phone": "8700610923"}, {"hub": "Ghaziabad SDD", "name": "Vishal Aggarwal", "id": "9845.0", "vendor": "Speedio", "phone": "7532001750"}, {"hub": "Ghaziabad SDD", "name": "Kasid Hussain", "id": "6739.0", "vendor": "Speedio", "phone": "7503422828"}, {"hub": "Ghaziabad SDD", "name": "Wasim Abbas", "id": "346.0", "vendor": "Speedio", "phone": "9953538112"}, {"hub": "Ghaziabad SDD", "name": "Inderjeet", "id": "6597.0", "vendor": "ZD", "phone": "7428250424"}, {"hub": "Ghaziabad SDD", "name": "Shahnawaz Khan", "id": "15479.0", "vendor": "Rapydex", "phone": "9084154449"}, {"hub": "Ghaziabad SDD", "name": "farman", "id": "9510.0", "vendor": "Speedio", "phone": "9717939099"}, {"hub": "Ghaziabad SDD", "name": "Priyanshu Thakur", "id": "56791.0", "vendor": "Speedio", "phone": "8586025882"}, {"hub": "Ghaziabad SDD", "name": "Inderjeet kumar", "id": "57211.0", "vendor": "ZD", "phone": "8851613299"}, {"hub": "Ghaziabad SDD", "name": "Vikash", "id": "1452.0", "vendor": "Speedio", "phone": "9718681452"}, {"hub": "Ghaziabad SDD", "name": "Wasim Abbas", "id": "98186.0", "vendor": "Speedio", "phone": "9953538112"}, {"hub": "Gurugram SDD", "name": "Rajesh Diwakar", "id": "16461.0", "vendor": "Rapydex", "phone": "9958934259"}, {"hub": "Gurugram SDD", "name": "Abhishek Sharma", "id": "15650.0", "vendor": "SHREEVED", "phone": "7827602833"}, {"hub": "Gurugram SDD", "name": "Sandeep Kumar", "id": "12752.0", "vendor": "SHREEVED", "phone": "9315717843"}, {"hub": "Gurugram SDD", "name": "Ram murat Shukla", "id": "12566.0", "vendor": "SHREEVED", "phone": "9953250563"}, {"hub": "Gurugram SDD", "name": "Dharmendra Singh", "id": "12480.0", "vendor": "SHREEVED", "phone": "9773589499"}, {"hub": "Gurugram SDD", "name": "Rajesh Kumar", "id": "12457.0", "vendor": "SHREEVED", "phone": "9212161375"}, {"hub": "Gurugram SDD", "name": "Sushil Kumar", "id": "12426.0", "vendor": "SHREEVED", "phone": "9958196491"}, {"hub": "Gurugram SDD", "name": "Rajkumar Singh", "id": "12425.0", "vendor": "SHREEVED", "phone": "8586074473"}, {"hub": "Gurugram Clinikally", "name": "Satynarayan Pandey", "id": "", "vendor": "ZETI", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Rahul Singh", "id": "", "vendor": "ZETI", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Sundaram Pandey", "id": "", "vendor": "ZETI", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Aniket", "id": "", "vendor": "ZETI", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Rajeev Kumar", "id": "", "vendor": "ZETI", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Pankaj Chhabra", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Ankit Singh", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "SUBHASH CHAND", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Mayank Raghav", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "PAVAN", "id": "", "vendor": "Talento", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "NEERAJ", "id": "", "vendor": "Talento", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "RINKU", "id": "", "vendor": "Talento", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "AKHILESH", "id": "", "vendor": "Talento", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "AJAY", "id": "", "vendor": "Talento", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "DHARAM PAL", "id": "", "vendor": "GIG for U", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "JAI YADAV", "id": "", "vendor": "Nitariya", "phone": ""}, {"hub": "Dwarka SDD", "name": "Shahbaz Khan", "id": "6532.0", "vendor": "ZD", "phone": "9911508101"}, {"hub": "Dwarka SDD", "name": "Gaurav Gupta", "id": "6750.0", "vendor": "ZD", "phone": "9311846518"}, {"hub": "Dwarka SDD", "name": "Chand", "id": "6629.0", "vendor": "Rapydex", "phone": "8826583108"}, {"hub": "Dwarka SDD", "name": "Gaurav", "id": "6617.0", "vendor": "Rapydex", "phone": "8130407914"}, {"hub": "Dwarka SDD", "name": "Ajit", "id": "6670.0", "vendor": "Rapydex", "phone": "7217845284"}, {"hub": "Dwarka SDD", "name": "Sandeep", "id": "12443.0", "vendor": "Rapydex", "phone": "8375821588"}, {"hub": "Dwarka SDD", "name": "Raja", "id": "15623.0", "vendor": "ZD", "phone": "87501 42479"}, {"hub": "Dwarka SDD", "name": "chander", "id": "15289.0", "vendor": "ZD", "phone": "88021 30197"}, {"hub": "Dwarka SDD", "name": "Puneet", "id": "12460.0", "vendor": "Rapydex", "phone": "96438 82688"}, {"hub": "Noida SDD", "name": "Vali Mohammad", "id": "18894.0", "vendor": "Rapydex", "phone": "9759375522"}, {"hub": "Noida SDD", "name": "Sonu Bhatt", "id": "15900.0", "vendor": "Rapydex", "phone": "9643649529"}, {"hub": "Noida SDD", "name": "Jaychand Kumar", "id": "14580.0", "vendor": "Rapydex", "phone": "8449275334"}, {"hub": "Noida SDD", "name": "Saurav Sharma", "id": "13609.0", "vendor": "Rapydex", "phone": "9999146960"}, {"hub": "Noida SDD", "name": "Shivam Kumar", "id": "12590.0", "vendor": "HHCL", "phone": "8588969751"}, {"hub": "Noida SDD", "name": "Anoj Chauhan", "id": "12281.0", "vendor": "HHCL", "phone": "9068580096"}, {"hub": "Noida SDD", "name": "Rahul Kumar", "id": "12210.0", "vendor": "Rapydex", "phone": "8826867660"}, {"hub": "Noida SDD", "name": "AJAY Thakur", "id": "11506.0", "vendor": "HHCL", "phone": "7703838571"}, {"hub": "Noida SDD", "name": "Arvind Kumar", "id": "9250.0", "vendor": "Rapydex", "phone": "9905455322"}, {"hub": "Noida SDD", "name": "Abhishek Kumar", "id": "6672.0", "vendor": "HHCL", "phone": "9599893844"}, {"hub": "Noida SDD", "name": "Deepak Kanaujiya", "id": "6630.0", "vendor": "HHCL", "phone": "7982682988"}, {"hub": "Noida SDD", "name": "Subhas Kumar", "id": "190.0", "vendor": "Rapydex", "phone": "7398966894"}, {"hub": "Noida SDD", "name": "Laxman Kumar Jha", "id": "173.0", "vendor": "Rapydex", "phone": "7739747296"}, {"hub": "Noida SDD", "name": "Ankush Kumar", "id": "171.0", "vendor": "HHCL", "phone": "8810275430"}, {"hub": "Noida SDD", "name": "Devender Kumar", "id": "169.0", "vendor": "HHCL", "phone": "9319236052"}, {"hub": "Noida SDD", "name": "Ajeet Kumar", "id": "143.0", "vendor": "Rapydex", "phone": "6396600227"}, {"hub": "Okhla SDD", "name": "Anwer", "id": "", "vendor": "ZD", "phone": ""}, {"hub": "Wazirpur SDD", "name": "Harish Kumar", "id": "12442.0", "vendor": "ZD", "phone": "9968760904"}, {"hub": "Wazirpur SDD", "name": "Musharraf Hussain", "id": "12434.0", "vendor": "ZD", "phone": "8210319022"}, {"hub": "Wazirpur SDD", "name": "Vikas Singh", "id": "12428.0", "vendor": "ZD", "phone": "7042461451"}, {"hub": "Wazirpur SDD", "name": "Md Zaferuddin", "id": "12424.0", "vendor": "ZD", "phone": "9911671619"}, {"hub": "Wazirpur SDD", "name": "Ashutosh Mishra", "id": "12423.0", "vendor": "ZD", "phone": "9654965369"}, {"hub": "Wazirpur SDD", "name": "Sachin Kumar", "id": "6769.0", "vendor": "ZD", "phone": "8851645603"}, {"hub": "Wazirpur SDD", "name": "yashu Sharma", "id": "6745.0", "vendor": "ZD", "phone": "9717414845"}, {"hub": "Wazirpur SDD", "name": "Deepak Kumar", "id": "6668.0", "vendor": "ZD", "phone": "9350155913"}, {"hub": "Wazirpur SDD", "name": "Ambrish Rai", "id": "6538.0", "vendor": "ZD", "phone": "7678520550"}, {"hub": "Wazirpur SDD", "name": "Chandan Kumar", "id": "416.0", "vendor": "ZD", "phone": "6299727134"}, {"hub": "Wazirpur SDD", "name": "Rajender Parshad", "id": "415.0", "vendor": "ZD", "phone": "7053324405"}, {"hub": "Wazirpur SDD", "name": "Raj Kumar", "id": "148.0", "vendor": "ZD", "phone": "8882324328"}, {"hub": "Wazirpur SDD", "name": "Zd Navneet Kumar", "id": "18821.0", "vendor": "ZD", "phone": "8527413556"}, {"hub": "Wazirpur SDD", "name": "Arun Mishra", "id": "16804.0", "vendor": "ZD", "phone": "9310399065"}, {"hub": "Wazirpur SDD", "name": "Navneet Mishra", "id": "16431.0", "vendor": "ZD", "phone": "9811205203"}, {"hub": "Wazirpur SDD", "name": "ZD vinod Kumar", "id": "14648.0", "vendor": "ZD", "phone": "8800431296"}, {"hub": "Wazirpur SDD", "name": "ZD Pavan", "id": "12974.0", "vendor": "ZD", "phone": "9560321423"}, {"hub": "Okhla SDD", "name": "Shamim Ali", "id": "116.0", "vendor": "ZD", "phone": "9958607974"}, {"hub": "Okhla SDD", "name": "Dilip Dilip", "id": "132.0", "vendor": "ZD", "phone": "9718430617"}, {"hub": "Okhla SDD", "name": "Mohd Anwar", "id": "131.0", "vendor": "ZD", "phone": "9625621131"}, {"hub": "Okhla SDD", "name": "Ravi Kumar singh", "id": "18896.0", "vendor": "HHCL", "phone": "9873735262"}, {"hub": "Okhla SDD", "name": "Manoj Gupta", "id": "7338.0", "vendor": "HHCL", "phone": "9911929085"}, {"hub": "Okhla SDD", "name": "Rajesh Kumar", "id": "9641.0", "vendor": "HHCL", "phone": "8368455530"}, {"hub": "Okhla SDD", "name": "Ravi Kumar", "id": "8041.0", "vendor": "HHCL", "phone": "8368460104"}, {"hub": "Okhla SDD", "name": "Anil Kumar", "id": "18877.0", "vendor": "HHCL", "phone": "8527755984"}, {"hub": "Okhla SDD", "name": "INDRA Jeet", "id": "112.0", "vendor": "ZD", "phone": "7037898233"}, {"hub": "Okhla SDD", "name": "Akash Kumar", "id": "115.0", "vendor": "ZD", "phone": "7983230416"}, {"hub": "Okhla SDD", "name": "Deepak Kumar", "id": "13179.0", "vendor": "ZD", "phone": "8743980325"}, {"hub": "Okhla SDD", "name": "Mohamad Bilal", "id": "117.0", "vendor": "ZD", "phone": "8285628874"}, {"hub": "Okhla SDD", "name": "Akber Akber", "id": "130.0", "vendor": "ZD", "phone": "7859915016"}, {"hub": "Okhla SDD", "name": "Akeel Ake", "id": "8812.0", "vendor": "ZD", "phone": "8882554489"}, {"hub": "Okhla SDD", "name": "Jitender Singh", "id": "19561.0", "vendor": "HHCL", "phone": "9250260317"}, {"hub": "Okhla SDD", "name": "Sahil Ali", "id": "9288.0", "vendor": "HHCL", "phone": "8920425809"}, {"hub": "Okhla SDD", "name": "Raju Mukhiya", "id": "14801.0", "vendor": "RDX", "phone": "9971307467"}, {"hub": "Okhla SDD", "name": "Sudheer Kumar", "id": "123.0", "vendor": "ZD", "phone": "9369688590"}, {"hub": "Okhla SDD", "name": "Jai prakash Prakash", "id": "9452.0", "vendor": "HHCL", "phone": "9582717112"}, {"hub": "Okhla SDD", "name": "Sudhir Yadav", "id": "19046.0", "vendor": "HHCL", "phone": "8006004555"}, {"hub": "Okhla SDD", "name": "Amit Daksh", "id": "13879.0", "vendor": "HHCL", "phone": "9560612661"}, {"hub": "Okhla SDD", "name": "Sunil Kumar", "id": "151.0", "vendor": "HHCL", "phone": "8745825853"}, {"hub": "Okhla SDD", "name": "MD Rashid", "id": "12110.0", "vendor": "HHCL", "phone": "9818988238"}, {"hub": "Okhla SDD", "name": "Radhe Shyam", "id": "118.0", "vendor": "RDX", "phone": "8750046381"}, {"hub": "Okhla SDD", "name": "Sumit Pandat", "id": "10494.0", "vendor": "HHCL", "phone": "9560908792"}, {"hub": "Okhla SDD", "name": "Jitender Sharma", "id": "7107.0", "vendor": "HHCL", "phone": "8882047508"}, {"hub": "Okhla SDD", "name": "Tanuj Khanna", "id": "19632.0", "vendor": "HHCL", "phone": "9711700144"}, {"hub": "Okhla SDD", "name": "Mohd Wahid", "id": "3064.0", "vendor": "HHCL", "phone": "9162956770"}, {"hub": "Okhla SDD", "name": "Md Sujahir", "id": "9558.0", "vendor": "HHCL", "phone": "9811507632"}, {"hub": "Okhla SDD", "name": "Deepak sahu Sahu", "id": "9229.0", "vendor": "HHCL", "phone": "9315554292"}, {"hub": "Okhla SDD", "name": "Salil Kumar", "id": "12254.0", "vendor": "HHCL", "phone": "8858660507"}, {"hub": "Okhla SDD", "name": "BRIJ GOPAL", "id": "13780.0", "vendor": "RDX", "phone": "9311365244"}, {"hub": "Okhla SDD", "name": "Wasim Ahmad", "id": "19023.0", "vendor": "HHCL", "phone": "8851511909"}, {"hub": "Okhla SDD", "name": "Paras Verma", "id": "19138.0", "vendor": "HHCL", "phone": "9205068617"}, {"hub": "Okhla SDD", "name": "Dilshad Alam", "id": "19042.0", "vendor": "HHCL", "phone": "7838160803"}, {"hub": "Okhla SDD", "name": "Vishal Kumar", "id": "18547.0", "vendor": "HHCL", "phone": "8383958530"}, {"hub": "Okhla SDD", "name": "Sumit kumar Sharmaa", "id": "15283.0", "vendor": "HHCL", "phone": "8796621462"}, {"hub": "Okhla SDD", "name": "Vipin Kumar", "id": "126.0", "vendor": "ZD", "phone": "7303830403"}, {"hub": "Okhla SDD", "name": "Raushan Kumar", "id": "17148.0", "vendor": "HHCL", "phone": "8595063062"}, {"hub": "Gurugram Clinikally", "name": "Kartikeya", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Chandan", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Noida SDD", "name": "Tikam singh", "id": "1785.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram SDD", "name": "Neeraj Singh", "id": "1070.0", "vendor": "Unknown", "phone": ""}, {"hub": "Dwarka SDD", "name": "Raja Raja", "id": "1156.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Vikash kumar", "id": "1809.0", "vendor": "Unknown", "phone": ""}, {"hub": "Dwarka SDD", "name": "Chander Gupta", "id": "1142.0", "vendor": "Unknown", "phone": ""}, {"hub": "Dwarka SDD", "name": "Ajit Kumar", "id": "975.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram SDD", "name": "Vinod Raghuvanshi", "id": "1813.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram SDD", "name": "Mohit panwar", "id": "1814.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Jittenter", "id": "1812.0", "vendor": "Unknown", "phone": ""}, {"hub": "Dwarka SDD", "name": "Gaurav D", "id": "969.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "RAJA KUMAR", "id": "1797.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Akash guchait", "id": "1806.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Rahul Rathore", "id": "1820.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Sandip", "id": "1808.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Md arif", "id": "1800.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Ankit sahu", "id": "1810.0", "vendor": "Unknown", "phone": ""}, {"hub": "Ghaziabad SDD", "name": "Farman Ahmed", "id": "1003.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram SDD", "name": "Kartikey awasthi", "id": "1799.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Bhagwat", "id": "1803.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Md arman", "id": "1798.0", "vendor": "Unknown", "phone": ""}, {"hub": "Ghaziabad SDD", "name": "Manish gupta", "id": "1796.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Anshu Kumar", "id": "978.0", "vendor": "Unknown", "phone": ""}, {"hub": "Ghaziabad SDD", "name": "Saurabh", "id": "1781.0", "vendor": "Unknown", "phone": ""}, {"hub": "Dwarka SDD", "name": "Punit Chauhan", "id": "1072.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Sachin Sharma", "id": "1825.0", "vendor": "Unknown", "phone": ""}, {"hub": "Wazirpur SDD", "name": "Jay parkssh", "id": "1801.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "M D ALAM", "id": "1805.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Aman Singh", "id": "1028.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Sohail Khan", "id": "1824.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Hasmi", "id": "988.0", "vendor": "Unknown", "phone": ""}];
+
+// ========== TABS ==========
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ========== PERFORMANCE TABLE ==========
+function renderPerformance() {
+  const tbody = document.getElementById('perfBody');
+  tbody.innerHTML = '';
+  let totP = 0, totA = 0;
+  stores.forEach((s, i) => {
+    totP += s.planned;
+    totA += s.actual;
+    const login = s.planned > 0 ? ((s.actual / s.planned) * 100).toFixed(1) : '0.0';
+    const gap = s.actual - s.planned;
+    const cls = login >= 90 ? 'green' : (login >= 70 ? 'yellow' : 'red');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td style="color:#38bdf8; font-weight:600;">${s.name}</td>
+      <td>${s.planned}</td>
+      <td>${s.actual}</td>
+      <td><span class="status-tag ${cls}">${login}%</span></td>
+      <td style="color:${gap >= 0 ? '#4ade80' : '#f87171'}">${gap > 0 ? '+' + gap : gap}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('kPlanned').innerText = totP;
+  document.getElementById('kActual').innerText = totA;
+  document.getElementById('kHubs').innerText = stores.length;
+  const pct = totP > 0 ? ((totA / totP) * 100).toFixed(0) + '%' : '0%';
+  document.getElementById('kLoginPct').innerText = pct + ' Login';
+}
+
+// ========== RIDER MASTER ==========
+function initFilters() {
+  const hubs = [...new Set(riders.map(r => r.hub))].sort();
+  const vendors = [...new Set(riders.map(r => r.vendor))].sort();
+  const hubSelect = document.getElementById('filterHub');
+  const vendorSelect = document.getElementById('filterVendor');
+  // clear old options except first
+  hubSelect.innerHTML = '<option value="">All Hubs</option>';
+  vendorSelect.innerHTML = '<option value="">All Vendors</option>';
+  hubs.forEach(h => {
+    const opt = document.createElement('option');
+    opt.value = h; opt.textContent = h;
+    hubSelect.appendChild(opt);
+  });
+  vendors.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    vendorSelect.appendChild(opt);
+  });
+  document.getElementById('kRiders').innerText = riders.length;
+}
+
+function renderRiders() {
+  const hubF = document.getElementById('filterHub').value;
+  const venF = document.getElementById('filterVendor').value;
+  const search = document.getElementById('searchRider').value.toLowerCase();
+  let filtered = riders.filter(r => {
+    if (hubF && r.hub !== hubF) return false;
+    if (venF && r.vendor !== venF) return false;
+    if (search && !r.name.toLowerCase().includes(search) && !String(r.id).includes(search)) return false;
+    return true;
+  });
+  const tbody = document.getElementById('riderBody');
+  tbody.innerHTML = '';
+  filtered.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td style="color:#38bdf8;">${r.hub}</td>
+      <td style="font-weight:600;">${r.name}</td>
+      <td>${r.id || '-'}</td>
+      <td><span class="status-tag green">${r.vendor}</span></td>
+      <td style="font-size:12px;">${r.phone || '-'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('showCount').innerText = filtered.length;
+}
+
+// ========== VENDOR SUMMARY ==========
+function renderVendor() {
+  const map = {};
+  riders.forEach(r => {
+    if (!map[r.vendor]) map[r.vendor] = { count: 0, hubs: new Set() };
+    map[r.vendor].count++;
+    map[r.vendor].hubs.add(r.hub);
+  });
+  const sorted = Object.entries(map).sort((a,b) => b[1].count - a[1].count);
+  const tbody = document.getElementById('vendorBody');
+  tbody.innerHTML = '';
+  sorted.forEach(([vendor, data]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:600; color:#38bdf8;">${vendor}</td>
+      <td>${data.count}</td>
+      <td style="font-size:12px;">${[...data.hubs].join(', ')}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  if (sorted.length) document.getElementById('kTopVendor').innerText = sorted[0][0];
+}
+
+// ========== DOWNLOAD REPORTS ==========
+function downloadPerformance() {
+  let csv = "S.No,Hub/Store,Planned,Actual,Login %,Gap\n";
+  stores.forEach((s, i) => {
+    const login = s.planned > 0 ? ((s.actual / s.planned) * 100).toFixed(1) : '0.0';
+    const gap = s.actual - s.planned;
+    csv += `${i+1},"${s.name}",${s.planned},${s.actual},${login}%,${gap}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Zippee_LM_Hub_Performance_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  document.getElementById('uploadStatus').innerText = '✅ Hub Performance Report downloaded!';
+}
+
+function downloadRiders() {
+  let csv = "Hub,Rider Name,Rider ID,Vendor,Phone\n";
+  riders.forEach(r => {
+    csv += `"${r.hub}","${r.name}","${r.id}","${r.vendor}","${r.phone}"\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Zippee_LM_Rider_Master_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  document.getElementById('uploadStatus').innerText = '✅ Rider Master downloaded!';
+}
+
+// ========== UPLOAD CSV (Daily Report) ==========
+function handleCSV(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const text = evt.target.result;
+      const lines = text.split('\n').filter(l => l.trim());
+      // Simple detection - if it has Warehouse Name / Rider columns we can count later
+      document.getElementById('uploadStatus').innerText = '✅ Daily CSV uploaded: ' + file.name + ' (' + (lines.length-1) + ' rows). Performance table currently manual. Full auto-update coming soon.';
+      // Future: parse and update stores from this file
+    } catch(err) {
+      document.getElementById('uploadStatus').innerText = '❌ Error reading CSV';
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ========== UPLOAD RIDER SHEET ==========
+function handleRiderUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const text = evt.target.result;
+      const lines = text.split('\n').filter(l => l.trim());
+      if (lines.length < 2) {
+        document.getElementById('uploadStatus').innerText = '❌ Empty file';
+        return;
+      }
+      // Expect columns: Hub, Rider Name, Rider ID, Vendor, Phone  (or similar)
+      const header = lines[0].toLowerCase();
+      const newRiders = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(c => c.replace(/^"|"$/g, '').trim());
+        if (cols.length >= 2 && cols[1]) {
+          newRiders.push({
+            hub: cols[0] || 'Unknown',
+            name: cols[1] || '',
+            id: cols[2] || '',
+            vendor: cols[3] || 'Unknown',
+            phone: cols[4] || ''
+          });
+        }
+      }
+      if (newRiders.length > 0) {
+        riders = newRiders;
+        initFilters();
+        renderRiders();
+        renderVendor();
+        document.getElementById('uploadStatus').innerText = '✅ Rider Master updated! ' + newRiders.length + ' riders loaded from ' + file.name;
+      } else {
+        document.getElementById('uploadStatus').innerText = '❌ No valid riders found. Use columns: Hub, Rider Name, Rider ID, Vendor, Phone';
+      }
+    } catch(err) {
+      document.getElementById('uploadStatus').innerText = '❌ Error reading file: ' + err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ========== INIT ==========
+renderPerformance();
+initFilters();
+renderRiders();
+renderVendor();
+</script>
+
+
+</body></html>
