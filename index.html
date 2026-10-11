@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zippee Last Mile Team</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+    body { background: #0f172a; color: #ffffff; padding: 16px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .card { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 16px; }
+    h1 { font-size: 22px; color: #38bdf8; margin-bottom: 6px; }
+    h3 { color: #38bdf8; margin-bottom: 12px; font-size: 16px; }
+    .badge { display: inline-block; background: #0284c7; color: #fff; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 12px; margin-bottom: 12px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .kpi-card { background: #1e293b; padding: 14px; border-radius: 10px; border: 1px solid #334155; text-align: center; }
+    .kpi-title { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+    .kpi-num { font-size: 26px; font-weight: 700; color: #fff; margin: 4px 0; }
+    .kpi-sub { font-size: 11px; font-weight: 600; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab { background: #334155; color: #94a3b8; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
+    .tab.active { background: #0284c7; color: #fff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .filters { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+    select, input[type="text"], input[type="number"] { padding: 8px 12px; border: 1px solid #334155; border-radius: 6px; background: #0f172a; color: #fff; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #334155; }
+    th { background: #0f172a; color: #38bdf8; font-weight: 600; position: sticky; top: 0; }
+    tr:hover { background: #334155; }
+    .status-tag { padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .green { background: #166534; color: #4ade80; }
+    .yellow { background: #854d0e; color: #facc15; }
+    .red { background: #991b1b; color: #f87171; }
+    .btn { border: none; padding: 9px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-blue { background: #0284c7; color: white; }
+    .btn-green { background: #16a34a; color: white; }
+    .btn-orange { background: #d97706; color: white; }
+    .btn-purple { background: #7c3aed; color: white; }
+    .search-box { flex: 1; min-width: 180px; }
+    .table-wrap { max-height: 520px; overflow-y: auto; border-radius: 8px; }
+    .upload-box { background: #0f172a; border: 2px dashed #38bdf8; border-radius: 10px; padding: 18px; text-align: center; cursor: pointer; margin-bottom: 14px; transition: 0.2s; }
+    .upload-box:hover { background: #1e293b; border-color: #7dd3fc; }
+    .btn-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+    #csvFileInput, #riderFileInput { display: none; }
+    .note { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="card" style="text-align:center;">
+    <div style="font-size:32px;">🔱</div>
+    <h1>Zippee Last Mile Team</h1>
+    <div class="badge">Naveen Kashyap • Delhi-NCR</div>
+    <div style="font-size:12px; color:#94a3b8; margin-top:6px;">Rider Master + Hub Performance | Live Dashboard</div>
+
+    <!-- Upload + Download Buttons -->
+    <div class="btn-group">
+      <button class="btn btn-blue" onclick="document.getElementById('csvFileInput').click()">📂 Upload Daily CSV</button>
+      <button class="btn btn-purple" onclick="document.getElementById('riderFileInput').click()">📋 Upload Rider Sheet</button>
+      <button class="btn btn-orange" onclick="downloadPerformance()">📥 Download Hub Report</button>
+      <button class="btn btn-green" onclick="downloadRiders()">📥 Download Rider Master</button>
+    </div>
+    <input type="file" id="csvFileInput" accept=".csv" onchange="handleCSV(event)">
+    <input type="file" id="riderFileInput" accept=".csv,.xlsx" onchange="handleRiderUpload(event)">
+    <div class="note" id="uploadStatus">CSV upload se orders/status update hoga • Rider sheet se master list update hogi</div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Hubs</div>
+      <div class="kpi-num" id="kHubs">12</div>
+      <div class="kpi-sub" style="color:#38bdf8;">Delhi-NCR</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Total Riders (Master)</div>
+      <div class="kpi-num" id="kRiders">0</div>
+      <div class="kpi-sub" style="color:#38bdf8;">In Master List</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Planned Riders</div>
+      <div class="kpi-num" id="kPlanned">168</div>
+      <div class="kpi-sub" style="color:#38bdf8;">Today</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Actual Logged</div>
+      <div class="kpi-num" id="kActual">175</div>
+      <div class="kpi-sub" style="color:#4ade80;" id="kLoginPct">104%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Top Vendor</div>
+      <div class="kpi-num" style="font-size:18px;" id="kTopVendor">ZD</div>
+      <div class="kpi-sub" style="color:#38bdf8;">Most Riders</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('performance', this)">📊 Hub Performance</button>
+    <button class="tab" onclick="showTab('riders', this)">👥 Rider Master</button>
+    <button class="tab" onclick="showTab('vendor', this)">🏷 Vendor Summary</button>
+  </div>
+
+  <!-- TAB 1: Hub Performance -->
+  <div id="performance" class="tab-content active">
+    <div class="card">
+      <h3>🏬 DELHI-NCR HUB PERFORMANCE</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Hub / Store</th>
+              <th>Planned</th>
+              <th>Actual</th>
+              <th>Login %</th>
+              <th>Gap</th>
+            </tr>
+          </thead>
+          <tbody id="perfBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: Rider Master -->
+  <div id="riders" class="tab-content">
+    <div class="card">
+      <h3>👥 RIDER MASTER LIST (Hub → Rider → Vendor)</h3>
+      <div class="filters">
+        <select id="filterHub" onchange="renderRiders()">
+          <option value="">All Hubs</option>
+        </select>
+        <select id="filterVendor" onchange="renderRiders()">
+          <option value="">All Vendors</option>
+        </select>
+        <input type="text" class="search-box" id="searchRider" placeholder="Search Rider Name / ID..." oninput="renderRiders()">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Hub</th>
+              <th>Rider Name</th>
+              <th>Rider ID</th>
+              <th>Vendor</th>
+              <th>Phone</th>
+            </tr>
+          </thead>
+          <tbody id="riderBody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px; font-size:12px; color:#94a3b8;">
+        Showing <span id="showCount">0</span> riders
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Vendor Summary -->
+  <div id="vendor" class="tab-content">
+    <div class="card">
+      <h3>🏷 VENDOR-WISE SUMMARY</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Vendor</th>
+              <th>Total Riders</th>
+              <th>Hubs Present</th>
+            </tr>
+          </thead>
+          <tbody id="vendorBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ========== DATA ==========
+let stores = [
+  { name: "Okhla SDD", planned: 30, actual: 29 },
+  { name: "Dwarka SDD", planned: 10, actual: 11 },
+  { name: "Wazirpur SDD", planned: 17, actual: 17 },
+  { name: "Ghaziabad SDD", planned: 13, actual: 14 },
+  { name: "Gurugram SDD", planned: 5, actual: 8 },
+  { name: "Gurugram Clinikally", planned: 6, actual: 6 },
+  { name: "Noida SDD", planned: 14, actual: 17 },
+  { name: "Ozi Dwarka Sector 3", planned: 10, actual: 12 },
+  { name: "Ozi Noida Sec 1", planned: 10, actual: 13 },
+  { name: "Ozi Gurugram Sec 84", planned: 15, actual: 14 },
+  { name: "Ozi Gurugram Sec 52", planned: 8, actual: 4 },
+  { name: "Ozi Noida 62", planned: 30, actual: 30 }
+];
+
+let riders = [{"hub": "Ghaziabad SDD", "name": "Kapil Kumar", "id": "15902.0", "vendor": "Speedio", "phone": "9319218987"}, {"hub": "Ghaziabad SDD", "name": "Sameer Khan", "id": "17759.0", "vendor": "Speedio", "phone": "7367067018"}, {"hub": "Ghaziabad SDD", "name": "Vineet Kumar", "id": "15761.0", "vendor": "Speedio", "phone": "8882197063"}, {"hub": "Ghaziabad SDD", "name": "Shivam giri", "id": "12412.0", "vendor": "Rapydex", "phone": "9650944038"}, {"hub": "Ghaziabad SDD", "name": "Inderpal Singh", "id": "9858.0", "vendor": "Speedio", "phone": "7428250424"}, {"hub": "Ghaziabad SDD", "name": "Nishu Paswan", "id": "12427.0", "vendor": "Rapydex", "phone": "9667442943"}, {"hub": "Ghaziabad SDD", "name": "Priyanshu Thakur", "id": "6535.0", "vendor": "Speedio", "phone": "8586025882"}, {"hub": "Ghaziabad SDD", "name": "Zahur Haider", "id": "7620.0", "vendor": "Speedio", "phone": "8700610923"}, {"hub": "Ghaziabad SDD", "name": "Vishal Aggarwal", "id": "9845.0", "vendor": "Speedio", "phone": "7532001750"}, {"hub": "Ghaziabad SDD", "name": "Kasid Hussain", "id": "6739.0", "vendor": "Speedio", "phone": "7503422828"}, {"hub": "Ghaziabad SDD", "name": "Wasim Abbas", "id": "346.0", "vendor": "Speedio", "phone": "9953538112"}, {"hub": "Ghaziabad SDD", "name": "Inderjeet", "id": "6597.0", "vendor": "ZD", "phone": "7428250424"}, {"hub": "Ghaziabad SDD", "name": "Shahnawaz Khan", "id": "15479.0", "vendor": "Rapydex", "phone": "9084154449"}, {"hub": "Ghaziabad SDD", "name": "farman", "id": "9510.0", "vendor": "Speedio", "phone": "9717939099"}, {"hub": "Ghaziabad SDD", "name": "Priyanshu Thakur", "id": "56791.0", "vendor": "Speedio", "phone": "8586025882"}, {"hub": "Ghaziabad SDD", "name": "Inderjeet kumar", "id": "57211.0", "vendor": "ZD", "phone": "8851613299"}, {"hub": "Ghaziabad SDD", "name": "Vikash", "id": "1452.0", "vendor": "Speedio", "phone": "9718681452"}, {"hub": "Ghaziabad SDD", "name": "Wasim Abbas", "id": "98186.0", "vendor": "Speedio", "phone": "9953538112"}, {"hub": "Gurugram SDD", "name": "Rajesh Diwakar", "id": "16461.0", "vendor": "Rapydex", "phone": "9958934259"}, {"hub": "Gurugram SDD", "name": "Abhishek Sharma", "id": "15650.0", "vendor": "SHREEVED", "phone": "7827602833"}, {"hub": "Gurugram SDD", "name": "Sandeep Kumar", "id": "12752.0", "vendor": "SHREEVED", "phone": "9315717843"}, {"hub": "Gurugram SDD", "name": "Ram murat Shukla", "id": "12566.0", "vendor": "SHREEVED", "phone": "9953250563"}, {"hub": "Gurugram SDD", "name": "Dharmendra Singh", "id": "12480.0", "vendor": "SHREEVED", "phone": "9773589499"}, {"hub": "Gurugram SDD", "name": "Rajesh Kumar", "id": "12457.0", "vendor": "SHREEVED", "phone": "9212161375"}, {"hub": "Gurugram SDD", "name": "Sushil Kumar", "id": "12426.0", "vendor": "SHREEVED", "phone": "9958196491"}, {"hub": "Gurugram SDD", "name": "Rajkumar Singh", "id": "12425.0", "vendor": "SHREEVED", "phone": "8586074473"}, {"hub": "Gurugram Clinikally", "name": "Satynarayan Pandey", "id": "", "vendor": "ZETI", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Rahul Singh", "id": "", "vendor": "ZETI", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Sundaram Pandey", "id": "", "vendor": "ZETI", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Aniket", "id": "", "vendor": "ZETI", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Rajeev Kumar", "id": "", "vendor": "ZETI", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Pankaj Chhabra", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Ankit Singh", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "SUBHASH CHAND", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Mayank Raghav", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "PAVAN", "id": "", "vendor": "Talento", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "NEERAJ", "id": "", "vendor": "Talento", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "RINKU", "id": "", "vendor": "Talento", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "AKHILESH", "id": "", "vendor": "Talento", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "AJAY", "id": "", "vendor": "Talento", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "DHARAM PAL", "id": "", "vendor": "GIG for U", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "JAI YADAV", "id": "", "vendor": "Nitariya", "phone": ""}, {"hub": "Dwarka SDD", "name": "Shahbaz Khan", "id": "6532.0", "vendor": "ZD", "phone": "9911508101"}, {"hub": "Dwarka SDD", "name": "Gaurav Gupta", "id": "6750.0", "vendor": "ZD", "phone": "9311846518"}, {"hub": "Dwarka SDD", "name": "Chand", "id": "6629.0", "vendor": "Rapydex", "phone": "8826583108"}, {"hub": "Dwarka SDD", "name": "Gaurav", "id": "6617.0", "vendor": "Rapydex", "phone": "8130407914"}, {"hub": "Dwarka SDD", "name": "Ajit", "id": "6670.0", "vendor": "Rapydex", "phone": "7217845284"}, {"hub": "Dwarka SDD", "name": "Sandeep", "id": "12443.0", "vendor": "Rapydex", "phone": "8375821588"}, {"hub": "Dwarka SDD", "name": "Raja", "id": "15623.0", "vendor": "ZD", "phone": "87501 42479"}, {"hub": "Dwarka SDD", "name": "chander", "id": "15289.0", "vendor": "ZD", "phone": "88021 30197"}, {"hub": "Dwarka SDD", "name": "Puneet", "id": "12460.0", "vendor": "Rapydex", "phone": "96438 82688"}, {"hub": "Noida SDD", "name": "Vali Mohammad", "id": "18894.0", "vendor": "Rapydex", "phone": "9759375522"}, {"hub": "Noida SDD", "name": "Sonu Bhatt", "id": "15900.0", "vendor": "Rapydex", "phone": "9643649529"}, {"hub": "Noida SDD", "name": "Jaychand Kumar", "id": "14580.0", "vendor": "Rapydex", "phone": "8449275334"}, {"hub": "Noida SDD", "name": "Saurav Sharma", "id": "13609.0", "vendor": "Rapydex", "phone": "9999146960"}, {"hub": "Noida SDD", "name": "Shivam Kumar", "id": "12590.0", "vendor": "HHCL", "phone": "8588969751"}, {"hub": "Noida SDD", "name": "Anoj Chauhan", "id": "12281.0", "vendor": "HHCL", "phone": "9068580096"}, {"hub": "Noida SDD", "name": "Rahul Kumar", "id": "12210.0", "vendor": "Rapydex", "phone": "8826867660"}, {"hub": "Noida SDD", "name": "AJAY Thakur", "id": "11506.0", "vendor": "HHCL", "phone": "7703838571"}, {"hub": "Noida SDD", "name": "Arvind Kumar", "id": "9250.0", "vendor": "Rapydex", "phone": "9905455322"}, {"hub": "Noida SDD", "name": "Abhishek Kumar", "id": "6672.0", "vendor": "HHCL", "phone": "9599893844"}, {"hub": "Noida SDD", "name": "Deepak Kanaujiya", "id": "6630.0", "vendor": "HHCL", "phone": "7982682988"}, {"hub": "Noida SDD", "name": "Subhas Kumar", "id": "190.0", "vendor": "Rapydex", "phone": "7398966894"}, {"hub": "Noida SDD", "name": "Laxman Kumar Jha", "id": "173.0", "vendor": "Rapydex", "phone": "7739747296"}, {"hub": "Noida SDD", "name": "Ankush Kumar", "id": "171.0", "vendor": "HHCL", "phone": "8810275430"}, {"hub": "Noida SDD", "name": "Devender Kumar", "id": "169.0", "vendor": "HHCL", "phone": "9319236052"}, {"hub": "Noida SDD", "name": "Ajeet Kumar", "id": "143.0", "vendor": "Rapydex", "phone": "6396600227"}, {"hub": "Okhla SDD", "name": "Anwer", "id": "", "vendor": "ZD", "phone": ""}, {"hub": "Wazirpur SDD", "name": "Harish Kumar", "id": "12442.0", "vendor": "ZD", "phone": "9968760904"}, {"hub": "Wazirpur SDD", "name": "Musharraf Hussain", "id": "12434.0", "vendor": "ZD", "phone": "8210319022"}, {"hub": "Wazirpur SDD", "name": "Vikas Singh", "id": "12428.0", "vendor": "ZD", "phone": "7042461451"}, {"hub": "Wazirpur SDD", "name": "Md Zaferuddin", "id": "12424.0", "vendor": "ZD", "phone": "9911671619"}, {"hub": "Wazirpur SDD", "name": "Ashutosh Mishra", "id": "12423.0", "vendor": "ZD", "phone": "9654965369"}, {"hub": "Wazirpur SDD", "name": "Sachin Kumar", "id": "6769.0", "vendor": "ZD", "phone": "8851645603"}, {"hub": "Wazirpur SDD", "name": "yashu Sharma", "id": "6745.0", "vendor": "ZD", "phone": "9717414845"}, {"hub": "Wazirpur SDD", "name": "Deepak Kumar", "id": "6668.0", "vendor": "ZD", "phone": "9350155913"}, {"hub": "Wazirpur SDD", "name": "Ambrish Rai", "id": "6538.0", "vendor": "ZD", "phone": "7678520550"}, {"hub": "Wazirpur SDD", "name": "Chandan Kumar", "id": "416.0", "vendor": "ZD", "phone": "6299727134"}, {"hub": "Wazirpur SDD", "name": "Rajender Parshad", "id": "415.0", "vendor": "ZD", "phone": "7053324405"}, {"hub": "Wazirpur SDD", "name": "Raj Kumar", "id": "148.0", "vendor": "ZD", "phone": "8882324328"}, {"hub": "Wazirpur SDD", "name": "Zd Navneet Kumar", "id": "18821.0", "vendor": "ZD", "phone": "8527413556"}, {"hub": "Wazirpur SDD", "name": "Arun Mishra", "id": "16804.0", "vendor": "ZD", "phone": "9310399065"}, {"hub": "Wazirpur SDD", "name": "Navneet Mishra", "id": "16431.0", "vendor": "ZD", "phone": "9811205203"}, {"hub": "Wazirpur SDD", "name": "ZD vinod Kumar", "id": "14648.0", "vendor": "ZD", "phone": "8800431296"}, {"hub": "Wazirpur SDD", "name": "ZD Pavan", "id": "12974.0", "vendor": "ZD", "phone": "9560321423"}, {"hub": "Okhla SDD", "name": "Shamim Ali", "id": "116.0", "vendor": "ZD", "phone": "9958607974"}, {"hub": "Okhla SDD", "name": "Dilip Dilip", "id": "132.0", "vendor": "ZD", "phone": "9718430617"}, {"hub": "Okhla SDD", "name": "Mohd Anwar", "id": "131.0", "vendor": "ZD", "phone": "9625621131"}, {"hub": "Okhla SDD", "name": "Ravi Kumar singh", "id": "18896.0", "vendor": "HHCL", "phone": "9873735262"}, {"hub": "Okhla SDD", "name": "Manoj Gupta", "id": "7338.0", "vendor": "HHCL", "phone": "9911929085"}, {"hub": "Okhla SDD", "name": "Rajesh Kumar", "id": "9641.0", "vendor": "HHCL", "phone": "8368455530"}, {"hub": "Okhla SDD", "name": "Ravi Kumar", "id": "8041.0", "vendor": "HHCL", "phone": "8368460104"}, {"hub": "Okhla SDD", "name": "Anil Kumar", "id": "18877.0", "vendor": "HHCL", "phone": "8527755984"}, {"hub": "Okhla SDD", "name": "INDRA Jeet", "id": "112.0", "vendor": "ZD", "phone": "7037898233"}, {"hub": "Okhla SDD", "name": "Akash Kumar", "id": "115.0", "vendor": "ZD", "phone": "7983230416"}, {"hub": "Okhla SDD", "name": "Deepak Kumar", "id": "13179.0", "vendor": "ZD", "phone": "8743980325"}, {"hub": "Okhla SDD", "name": "Mohamad Bilal", "id": "117.0", "vendor": "ZD", "phone": "8285628874"}, {"hub": "Okhla SDD", "name": "Akber Akber", "id": "130.0", "vendor": "ZD", "phone": "7859915016"}, {"hub": "Okhla SDD", "name": "Akeel Ake", "id": "8812.0", "vendor": "ZD", "phone": "8882554489"}, {"hub": "Okhla SDD", "name": "Jitender Singh", "id": "19561.0", "vendor": "HHCL", "phone": "9250260317"}, {"hub": "Okhla SDD", "name": "Sahil Ali", "id": "9288.0", "vendor": "HHCL", "phone": "8920425809"}, {"hub": "Okhla SDD", "name": "Raju Mukhiya", "id": "14801.0", "vendor": "RDX", "phone": "9971307467"}, {"hub": "Okhla SDD", "name": "Sudheer Kumar", "id": "123.0", "vendor": "ZD", "phone": "9369688590"}, {"hub": "Okhla SDD", "name": "Jai prakash Prakash", "id": "9452.0", "vendor": "HHCL", "phone": "9582717112"}, {"hub": "Okhla SDD", "name": "Sudhir Yadav", "id": "19046.0", "vendor": "HHCL", "phone": "8006004555"}, {"hub": "Okhla SDD", "name": "Amit Daksh", "id": "13879.0", "vendor": "HHCL", "phone": "9560612661"}, {"hub": "Okhla SDD", "name": "Sunil Kumar", "id": "151.0", "vendor": "HHCL", "phone": "8745825853"}, {"hub": "Okhla SDD", "name": "MD Rashid", "id": "12110.0", "vendor": "HHCL", "phone": "9818988238"}, {"hub": "Okhla SDD", "name": "Radhe Shyam", "id": "118.0", "vendor": "RDX", "phone": "8750046381"}, {"hub": "Okhla SDD", "name": "Sumit Pandat", "id": "10494.0", "vendor": "HHCL", "phone": "9560908792"}, {"hub": "Okhla SDD", "name": "Jitender Sharma", "id": "7107.0", "vendor": "HHCL", "phone": "8882047508"}, {"hub": "Okhla SDD", "name": "Tanuj Khanna", "id": "19632.0", "vendor": "HHCL", "phone": "9711700144"}, {"hub": "Okhla SDD", "name": "Mohd Wahid", "id": "3064.0", "vendor": "HHCL", "phone": "9162956770"}, {"hub": "Okhla SDD", "name": "Md Sujahir", "id": "9558.0", "vendor": "HHCL", "phone": "9811507632"}, {"hub": "Okhla SDD", "name": "Deepak sahu Sahu", "id": "9229.0", "vendor": "HHCL", "phone": "9315554292"}, {"hub": "Okhla SDD", "name": "Salil Kumar", "id": "12254.0", "vendor": "HHCL", "phone": "8858660507"}, {"hub": "Okhla SDD", "name": "BRIJ GOPAL", "id": "13780.0", "vendor": "RDX", "phone": "9311365244"}, {"hub": "Okhla SDD", "name": "Wasim Ahmad", "id": "19023.0", "vendor": "HHCL", "phone": "8851511909"}, {"hub": "Okhla SDD", "name": "Paras Verma", "id": "19138.0", "vendor": "HHCL", "phone": "9205068617"}, {"hub": "Okhla SDD", "name": "Dilshad Alam", "id": "19042.0", "vendor": "HHCL", "phone": "7838160803"}, {"hub": "Okhla SDD", "name": "Vishal Kumar", "id": "18547.0", "vendor": "HHCL", "phone": "8383958530"}, {"hub": "Okhla SDD", "name": "Sumit kumar Sharmaa", "id": "15283.0", "vendor": "HHCL", "phone": "8796621462"}, {"hub": "Okhla SDD", "name": "Vipin Kumar", "id": "126.0", "vendor": "ZD", "phone": "7303830403"}, {"hub": "Okhla SDD", "name": "Raushan Kumar", "id": "17148.0", "vendor": "HHCL", "phone": "8595063062"}, {"hub": "Gurugram Clinikally", "name": "Kartikeya", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Chandan", "id": "", "vendor": "Shreeved", "phone": ""}, {"hub": "Noida SDD", "name": "Tikam singh", "id": "1785.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram SDD", "name": "Neeraj Singh", "id": "1070.0", "vendor": "Unknown", "phone": ""}, {"hub": "Dwarka SDD", "name": "Raja Raja", "id": "1156.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Vikash kumar", "id": "1809.0", "vendor": "Unknown", "phone": ""}, {"hub": "Dwarka SDD", "name": "Chander Gupta", "id": "1142.0", "vendor": "Unknown", "phone": ""}, {"hub": "Dwarka SDD", "name": "Ajit Kumar", "id": "975.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram SDD", "name": "Vinod Raghuvanshi", "id": "1813.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram SDD", "name": "Mohit panwar", "id": "1814.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Jittenter", "id": "1812.0", "vendor": "Unknown", "phone": ""}, {"hub": "Dwarka SDD", "name": "Gaurav D", "id": "969.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "RAJA KUMAR", "id": "1797.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Akash guchait", "id": "1806.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Rahul Rathore", "id": "1820.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Sandip", "id": "1808.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Md arif", "id": "1800.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Ankit sahu", "id": "1810.0", "vendor": "Unknown", "phone": ""}, {"hub": "Ghaziabad SDD", "name": "Farman Ahmed", "id": "1003.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram SDD", "name": "Kartikey awasthi", "id": "1799.0", "vendor": "Unknown", "phone": ""}, {"hub": "Gurugram Clinikally", "name": "Bhagwat", "id": "1803.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Md arman", "id": "1798.0", "vendor": "Unknown", "phone": ""}, {"hub": "Ghaziabad SDD", "name": "Manish gupta", "id": "1796.0", "vendor": "Unknown", "phone": ""}, {"hub": "Noida SDD", "name": "Anshu Kumar", "id": "978.0", "vendor": "Unknown", "phone": ""}, {"hub": "Ghaziabad SDD", "name": "Saurabh", "id": "1781.0", "vendor": "Unknown", "phone": ""}, {"hub": "Dwarka SDD", "name": "Punit Chauhan", "id": "1072.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Sachin Sharma", "id": "1825.0", "vendor": "Unknown", "phone": ""}, {"hub": "Wazirpur SDD", "name": "Jay parkssh", "id": "1801.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "M D ALAM", "id": "1805.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Aman Singh", "id": "1028.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Sohail Khan", "id": "1824.0", "vendor": "Unknown", "phone": ""}, {"hub": "Okhla SDD", "name": "Hasmi", "id": "988.0", "vendor": "Unknown", "phone": ""}];
+
+// ========== TABS ==========
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ========== PERFORMANCE TABLE ==========
+function renderPerformance() {
+  const tbody = document.getElementById('perfBody');
+  tbody.innerHTML = '';
+  let totP = 0, totA = 0;
+  stores.forEach((s, i) => {
+    totP += s.planned;
+    totA += s.actual;
+    const login = s.planned > 0 ? ((s.actual / s.planned) * 100).toFixed(1) : '0.0';
+    const gap = s.actual - s.planned;
+    const cls = login >= 90 ? 'green' : (login >= 70 ? 'yellow' : 'red');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td style="color:#38bdf8; font-weight:600;">${s.name}</td>
+      <td>${s.planned}</td>
+      <td>${s.actual}</td>
+      <td><span class="status-tag ${cls}">${login}%</span></td>
+      <td style="color:${gap >= 0 ? '#4ade80' : '#f87171'}">${gap > 0 ? '+' + gap : gap}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('kPlanned').innerText = totP;
+  document.getElementById('kActual').innerText = totA;
+  document.getElementById('kHubs').innerText = stores.length;
+  const pct = totP > 0 ? ((totA / totP) * 100).toFixed(0) + '%' : '0%';
+  document.getElementById('kLoginPct').innerText = pct + ' Login';
+}
+
+// ========== RIDER MASTER ==========
+function initFilters() {
+  const hubs = [...new Set(riders.map(r => r.hub))].sort();
+  const vendors = [...new Set(riders.map(r => r.vendor))].sort();
+  const hubSelect = document.getElementById('filterHub');
+  const vendorSelect = document.getElementById('filterVendor');
+  // clear old options except first
+  hubSelect.innerHTML = '<option value="">All Hubs</option>';
+  vendorSelect.innerHTML = '<option value="">All Vendors</option>';
+  hubs.forEach(h => {
+    const opt = document.createElement('option');
+    opt.value = h; opt.textContent = h;
+    hubSelect.appendChild(opt);
+  });
+  vendors.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    vendorSelect.appendChild(opt);
+  });
+  document.getElementById('kRiders').innerText = riders.length;
+}
+
+function renderRiders() {
+  const hubF = document.getElementById('filterHub').value;
+  const venF = document.getElementById('filterVendor').value;
+  const search = document.getElementById('searchRider').value.toLowerCase();
+  let filtered = riders.filter(r => {
+    if (hubF && r.hub !== hubF) return false;
+    if (venF && r.vendor !== venF) return false;
+    if (search && !r.name.toLowerCase().includes(search) && !String(r.id).includes(search)) return false;
+    return true;
+  });
+  const tbody = document.getElementById('riderBody');
+  tbody.innerHTML = '';
+  filtered.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td style="color:#38bdf8;">${r.hub}</td>
+      <td style="font-weight:600;">${r.name}</td>
+      <td>${r.id || '-'}</td>
+      <td><span class="status-tag green">${r.vendor}</span></td>
+      <td style="font-size:12px;">${r.phone || '-'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('showCount').innerText = filtered.length;
+}
+
+// ========== VENDOR SUMMARY ==========
+function renderVendor() {
+  const map = {};
+  riders.forEach(r => {
+    if (!map[r.vendor]) map[r.vendor] = { count: 0, hubs: new Set() };
+    map[r.vendor].count++;
+    map[r.vendor].hubs.add(r.hub);
+  });
+  const sorted = Object.entries(map).sort((a,b) => b[1].count - a[1].count);
+  const tbody = document.getElementById('vendorBody');
+  tbody.innerHTML = '';
+  sorted.forEach(([vendor, data]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:600; color:#38bdf8;">${vendor}</td>
+      <td>${data.count}</td>
+      <td style="font-size:12px;">${[...data.hubs].join(', ')}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  if (sorted.length) document.getElementById('kTopVendor').innerText = sorted[0][0];
+}
+
+// ========== DOWNLOAD REPORTS ==========
+function downloadPerformance() {
+  let csv = "S.No,Hub/Store,Planned,Actual,Login %,Gap\n";
+  stores.forEach((s, i) => {
+    const login = s.planned > 0 ? ((s.actual / s.planned) * 100).toFixed(1) : '0.0';
+    const gap = s.actual - s.planned;
+    csv += `${i+1},"${s.name}",${s.planned},${s.actual},${login}%,${gap}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Zippee_LM_Hub_Performance_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  document.getElementById('uploadStatus').innerText = '✅ Hub Performance Report downloaded!';
+}
+
+function downloadRiders() {
+  let csv = "Hub,Rider Name,Rider ID,Vendor,Phone\n";
+  riders.forEach(r => {
+    csv += `"${r.hub}","${r.name}","${r.id}","${r.vendor}","${r.phone}"\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Zippee_LM_Rider_Master_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  document.getElementById('uploadStatus').innerText = '✅ Rider Master downloaded!';
+}
+
+// ========== UPLOAD CSV (Daily Report) ==========
+function handleCSV(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const text = evt.target.result;
+      const lines = text.split('\n').filter(l => l.trim());
+      // Simple detection - if it has Warehouse Name / Rider columns we can count later
+      document.getElementById('uploadStatus').innerText = '✅ Daily CSV uploaded: ' + file.name + ' (' + (lines.length-1) + ' rows). Performance table currently manual. Full auto-update coming soon.';
+      // Future: parse and update stores from this file
+    } catch(err) {
+      document.getElementById('uploadStatus').innerText = '❌ Error reading CSV';
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ========== UPLOAD RIDER SHEET ==========
+function handleRiderUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const text = evt.target.result;
+      const lines = text.split('\n').filter(l => l.trim());
+      if (lines.length < 2) {
+        document.getElementById('uploadStatus').innerText = '❌ Empty file';
+        return;
+      }
+      // Expect columns: Hub, Rider Name, Rider ID, Vendor, Phone  (or similar)
+      const header = lines[0].toLowerCase();
+      const newRiders = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(c => c.replace(/^"|"$/g, '').trim());
+        if (cols.length >= 2 && cols[1]) {
+          newRiders.push({
+            hub: cols[0] || 'Unknown',
+            name: cols[1] || '',
+            id: cols[2] || '',
+            vendor: cols[3] || 'Unknown',
+            phone: cols[4] || ''
+          });
+        }
+      }
+      if (newRiders.length > 0) {
+        riders = newRiders;
+        initFilters();
+        renderRiders();
+        renderVendor();
+        document.getElementById('uploadStatus').innerText = '✅ Rider Master updated! ' + newRiders.length + ' riders loaded from ' + file.name;
+      } else {
+        document.getElementById('uploadStatus').innerText = '❌ No valid riders found. Use columns: Hub, Rider Name, Rider ID, Vendor, Phone';
+      }
+    } catch(err) {
+      document.getElementById('uploadStatus').innerText = '❌ Error reading file: ' + err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ========== INIT ==========
+renderPerformance();
+initFilters();
+renderRiders();
+renderVendor();
+</script>
+</body>
+</html>
